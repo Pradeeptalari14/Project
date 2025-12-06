@@ -1,0 +1,7 @@
+{
+  "name": "Unicharm Operations_v8",
+  "description": "Finished Goods Warehouse Management System for Staging and Loading operations with digital audit trails.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
