@@ -873,14 +873,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                                 <input
                                     type="text"
-                                    placeholder="Search sheets..."
-                                    className="pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-slate-50 transition-all min-w-[240px]"
+                                    placeholder="Search sheets, staff, vehicle..."
+                                    className={`pl-10 pr-10 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-w-[240px] ${searchTerm ? 'border-blue-500 bg-blue-50/50' : 'border-slate-200 bg-slate-50'}`}
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
                                 />
+                                {searchTerm && (
+                                    <button
+                                        onClick={() => setSearchTerm('')}
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-200 transition-colors"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
+
+                    {searchTerm && (
+                        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg flex items-center justify-between animate-fade-in">
+                            <div className="flex items-center gap-2">
+                                <Search size={16} className="text-blue-600" />
+                                <span className="text-sm text-blue-900 font-medium">
+                                    Filtering results for: <span className="font-bold">"{searchTerm}"</span>
+                                </span>
+                            </div>
+                            <button
+                                onClick={() => setSearchTerm('')}
+                                className="text-xs text-blue-600 hover:text-blue-800 font-bold underline px-2"
+                            >
+                                Clear Filter
+                            </button>
+                        </div>
+                    )}
+
                     <div className="overflow-hidden rounded-lg border border-slate-200 shadow-sm bg-white">
                         {/* Grid Header */}
                         <div className="grid grid-cols-[1.2fr_1fr_1.2fr_1.2fr_1fr_1fr_0.8fr_0.8fr_0.8fr_1fr_100px] bg-slate-800 text-white font-bold text-xs uppercase divide-x divide-slate-700 border-b border-slate-600">
@@ -927,7 +953,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                         {/* Grid Body */}
                         <div className="divide-y divide-slate-100">
                             {sheets
-                                .filter(s => s.id.includes(searchTerm) || s.supervisorName.toLowerCase().includes(searchTerm.toLowerCase()))
+                                .filter(s => {
+                                    if (!searchTerm) return true;
+                                    const term = searchTerm.toLowerCase();
+                                    return (
+                                        s.id.toLowerCase().includes(term) ||
+                                        s.supervisorName.toLowerCase().includes(term) ||
+                                        (s.loadingSvName && s.loadingSvName.toLowerCase().includes(term)) ||
+                                        s.createdBy.toLowerCase().includes(term) ||
+                                        (s.completedBy && s.completedBy.toLowerCase().includes(term)) ||
+                                        (s.driverName && s.driverName.toLowerCase().includes(term)) ||
+                                        (s.vehicleNo && s.vehicleNo.toLowerCase().includes(term)) ||
+                                        (s.destination && s.destination.toLowerCase().includes(term))
+                                    );
+                                })
                                 .sort((a, b) => {
                                     if (!sortConfig) return 0;
                                     const { key, direction } = sortConfig;
