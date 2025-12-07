@@ -103,13 +103,16 @@ export const LoadingSheet: React.FC<Props> = ({ sheet, onClose, initialPreview =
         setSealNo(sheet.sealNo || '');
         setRegSerialNo(sheet.regSerialNo || '');
 
-        setSvName(sheet.loadingSvName || '');
+        // Auto-fill Supervisor Name from Current User if missing (UX Improvement)
+        const defaultSvName = sheet.loadingSvName || (currentUser?.fullName || currentUser?.username || '');
+        setSvName(defaultSvName);
+
         setSvSign(sheet.loadingSupervisorSign || '');
         setSlSign(sheet.slSign || '');
         setDeoSign(sheet.deoSign || '');
         setRemarks(sheet.comments?.[0]?.text || '');
         setCapturedImage(sheet.capturedImages?.[0] || null);
-    }, [sheet]);
+    }, [sheet, currentUser]);
 
     // Initialize Loading Items based on Staging Items if empty
     useEffect(() => {
