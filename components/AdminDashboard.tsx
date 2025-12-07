@@ -37,6 +37,7 @@ interface ViewConfig {
     wrapText: boolean;
 }
 
+// Forced HMR Rebuild
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onViewSheet, onNavigate, initialSearch = '' }) => {
     const { users, approveUser, deleteUser, sheets, deleteSheet, register, resetPassword, currentUser, isLoading } = useApp();
 
@@ -1147,6 +1148,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                                     >
                                                         <Eye size={16} />
                                                     </button>
+                                                    {currentUser?.role === 'ADMIN' && (
+                                                        <button
+                                                            onClick={() => {
+                                                                const reason = prompt('Are you sure? Enter a reason to delete this sheet:');
+                                                                if (reason) {
+                                                                    deleteSheet(s.id, reason);
+                                                                }
+                                                            }}
+                                                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                            title="Delete Sheet"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
 
