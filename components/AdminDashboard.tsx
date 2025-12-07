@@ -274,74 +274,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                     </div>
                 </div>
 
-                {/* --- STANDARD KPIS (Fixed for now, can be widgets later) --- */}
-                {/* --- STANDARD KPIS (Fixed for now, can be widgets later) --- */}
-                {/* --- STANDARD KPIS (Fixed for now, can be widgets later) --- */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {/* KPI 1: Total Sheets (Visible to All) */}
-                    <div
-                        onClick={() => onNavigate?.('database')}
-                        className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:border-blue-300 transition-colors cursor-pointer hover:shadow-md group"
-                    >
-                        <div className="flex justify-between items-start">
-                            <div>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-blue-500 transition-colors">Total Sheets</p>
-                                <h3 className="text-2xl font-bold text-slate-800 mt-1">{stats.total}</h3>
-                            </div>
-                            <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors"><FileSpreadsheet size={18} /></div>
-                        </div>
-                    </div>
+                {/* --- MAIN DASHBOARD GRID (3 Columns) --- */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    {/* KPI 2: Active Loads (Visible to Loading & Admin Only) */}
-                    {showLoading && (
-                        <div
-                            onClick={() => onNavigate?.('loading')}
-                            className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:border-orange-300 transition-colors cursor-pointer hover:shadow-md group"
-                        >
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-orange-500 transition-colors">Active Loads</p>
-                                    <h3 className="text-2xl font-bold text-slate-800 mt-1">{stats.locked}</h3>
-                                </div>
-                                <div className="p-2 bg-orange-100 rounded-lg text-orange-600 group-hover:bg-orange-500 group-hover:text-white transition-colors"><Truck size={18} /></div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* KPI 3: Completed Today (Visible to All) */}
-                    <div
-                        onClick={() => onNavigate?.('database')}
-                        className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:border-green-300 transition-colors cursor-pointer hover:shadow-md group"
-                    >
-                        <div className="flex justify-between items-start">
-                            <div>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-green-500 transition-colors">Completed Today</p>
-                                <h3 className="text-2xl font-bold text-slate-800 mt-1">{stats.completedToday}</h3>
-                            </div>
-                            <div className="p-2 bg-green-100 rounded-lg text-green-600 group-hover:bg-green-500 group-hover:text-white transition-colors"><CheckCircle2 size={18} /></div>
-                        </div>
-                    </div>
-
-                    {/* KPI 4: Staff Active (Visible to Admin Only - or segregated count) */}
-                    {isAdmin && (
-                        <div
-                            onClick={() => onNavigate?.('admin')}
-                            className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:border-blue-300 transition-colors cursor-pointer hover:shadow-md group"
-                        >
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-blue-500 transition-colors">Total Staff Active</p>
-                                    <h3 className="text-2xl font-bold text-slate-800 mt-1">{stats.stagingStaff + stats.loadingStaff}</h3>
-                                </div>
-                                <div className="p-2 bg-blue-100 rounded-lg text-blue-600 group-hover:bg-blue-500 group-hover:text-white transition-colors"><UserIcon size={18} /></div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* --- DEPARTMENT OVERVIEWS (Role Based) --- */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Staging Overview & Loading Overview Logic Here (Existing Code moved/kept) */}
+                    {/* COL 1: STAGING OVERVIEW */}
                     {showStaging && (
                         <div
                             onClick={() => onNavigate?.('staging')}
@@ -352,7 +288,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors"><Clipboard size={18} /></div>
                                 <h3 className="font-bold text-slate-700">Staging Overview</h3>
                             </div>
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 gap-4">
                                 <div className="bg-white p-3 rounded-lg shadow-sm border border-slate-100">
                                     <p className="text-[10px] uppercase font-bold text-slate-400">Drafts</p>
                                     <p className="text-xl font-bold text-slate-800">{stats.draft}</p>
@@ -361,8 +297,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                     <p className="text-[10px] uppercase font-bold text-slate-400">New Today</p>
                                     <p className="text-xl font-bold text-slate-800">{stats.createdToday}</p>
                                 </div>
-                                <div className="bg-white p-3 rounded-lg shadow-sm border border-slate-100">
-                                    <p className="text-[10px] uppercase font-bold text-slate-400">Staff</p>
+                                <div className="bg-white p-3 rounded-lg shadow-sm border border-slate-100 col-span-2">
+                                    <p className="text-[10px] uppercase font-bold text-slate-400">Active Staff</p>
                                     <p
                                         className="text-xl font-bold text-slate-800 cursor-pointer hover:text-blue-600 hover:underline"
                                         onClick={(e) => {
@@ -377,7 +313,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                         </div>
                     )}
 
-                    {/* Loading Overview */}
+                    {/* COL 2: LOADING OVERVIEW */}
                     {showLoading && (
                         <div
                             onClick={() => onNavigate?.('loading')}
@@ -388,7 +324,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 <div className="p-2 bg-orange-100 text-orange-600 rounded-lg group-hover:bg-orange-600 group-hover:text-white transition-colors"><Truck size={18} /></div>
                                 <h3 className="font-bold text-slate-700">Loading Overview</h3>
                             </div>
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 gap-4">
                                 <div className="bg-white p-3 rounded-lg shadow-sm border border-slate-100">
                                     <p className="text-[10px] uppercase font-bold text-slate-400">Active</p>
                                     <p className="text-xl font-bold text-slate-800">{stats.locked}</p>
@@ -397,8 +333,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                     <p className="text-[10px] uppercase font-bold text-slate-400">Done Today</p>
                                     <p className="text-xl font-bold text-slate-800">{stats.completedToday}</p>
                                 </div>
-                                <div className="bg-white p-3 rounded-lg shadow-sm border border-slate-100">
-                                    <p className="text-[10px] uppercase font-bold text-slate-400">Staff</p>
+                                <div className="bg-white p-3 rounded-lg shadow-sm border border-slate-100 col-span-2">
+                                    <p className="text-[10px] uppercase font-bold text-slate-400">Active Staff</p>
                                     <p
                                         className="text-xl font-bold text-slate-800 cursor-pointer hover:text-orange-600 hover:underline"
                                         onClick={(e) => {
@@ -412,10 +348,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                             </div>
                         </div>
                     )}
+
+                    {/* COL 3: GLOBAL SUMMARY (Merged KPIs) */}
+                    <div className="space-y-4">
+                        <div
+                            onClick={() => onNavigate?.('database')}
+                            className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:border-blue-300 transition-colors cursor-pointer hover:shadow-md group flex items-center justify-between"
+                        >
+                            <div>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-blue-500 transition-colors">Total Sheets</p>
+                                <h3 className="text-2xl font-bold text-slate-800 mt-1">{stats.total}</h3>
+                            </div>
+                            <div className="p-3 bg-slate-50 rounded-lg text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors"><FileSpreadsheet size={20} /></div>
+                        </div>
+
+                        <div
+                            onClick={() => onNavigate?.('database')}
+                            className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:border-green-300 transition-colors cursor-pointer hover:shadow-md group flex items-center justify-between"
+                        >
+                            <div>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-green-500 transition-colors">Completed Today</p>
+                                <h3 className="text-2xl font-bold text-slate-800 mt-1">{stats.completedToday}</h3>
+                            </div>
+                            <div className="p-3 bg-slate-50 rounded-lg text-slate-400 group-hover:bg-green-50 group-hover:text-green-600 transition-colors"><CheckCircle2 size={20} /></div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* --- WIDGET GRID (ServiceNow Style) --- */}
-                {sortedWidgets.length > 0 && (
+                {/* --- WIDGET GRID (ServiceNow Style) - ADMIN ONLY --- */}
+                {currentUser?.role === Role.ADMIN && sortedWidgets.length > 0 && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {sortedWidgets.map((def, idx) => {
                             if (!def) return null;
@@ -844,9 +805,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                             </td>
                                             <td className="p-4">
                                                 <span className={`px-2 py-1 rounded text-xs font-bold ${log.action.includes('DELETE') ? 'bg-red-100 text-red-700' :
-                                                        log.action.includes('CREATE') ? 'bg-green-100 text-green-700' :
-                                                            log.action.includes('UPDATE') ? 'bg-blue-100 text-blue-700' :
-                                                                'bg-slate-100 text-slate-600'
+                                                    log.action.includes('CREATE') ? 'bg-green-100 text-green-700' :
+                                                        log.action.includes('UPDATE') ? 'bg-blue-100 text-blue-700' :
+                                                            'bg-slate-100 text-slate-600'
                                                     }`}>
                                                     {log.action}
                                                 </span>
