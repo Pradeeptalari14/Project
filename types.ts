@@ -136,3 +136,20 @@ export const EMPTY_STAGING_ITEMS: StagingItem[] = Array.from({ length: 15 }, (_,
   loose: 0,
   ttlCases: 0
 }));
+
+export type IncidentType = 'DAMAGE' | 'SHORTAGE' | 'QUALITY' | 'SAFETY' | 'OTHER';
+export type IncidentPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type IncidentStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED';
+
+export interface Incident {
+  id: string;
+  sheetId: string;
+  type: IncidentType;
+  description: string;
+  priority: IncidentPriority;
+  status: IncidentStatus;
+  createdBy: string;
+  createdAt: string;
+  resolvedAt?: string;
+  resolutionNotes?: string;
+}

@@ -8,6 +8,7 @@
 -- DROP TABLE IF EXISTS public.users;
 -- DROP TABLE IF EXISTS public.sheets;
 -- DROP TABLE IF EXISTS public.logs;
+-- DROP TABLE IF EXISTS public.incidents;
 
 -- 2. CREATE TABLES
 CREATE TABLE IF NOT EXISTS public.users (
@@ -24,6 +25,12 @@ CREATE TABLE IF NOT EXISTS public.sheets (
 CREATE TABLE IF NOT EXISTS public.logs (
   id text PRIMARY KEY,
   data jsonb NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.incidents (
+  id text PRIMARY KEY,
+  data jsonb NOT NULL,
+  created_at timestamptz DEFAULT now()
 );
 
 -- 3. ENABLE RLS & SET PERMISSIONS
@@ -46,6 +53,12 @@ ALTER TABLE public.logs ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public Access" ON public.logs;
 CREATE POLICY "Public Access" ON public.logs FOR ALL USING (true) WITH CHECK (true);
 GRANT ALL ON TABLE public.logs TO anon, authenticated, service_role;
+
+-- Incidents Table
+ALTER TABLE public.incidents ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public Access" ON public.incidents;
+CREATE POLICY "Public Access" ON public.incidents FOR ALL USING (true) WITH CHECK (true);
+GRANT ALL ON TABLE public.incidents TO anon, authenticated, service_role;
 
 -- 4. SEED DATA (Default Admin)
 INSERT INTO public.users (id, data)

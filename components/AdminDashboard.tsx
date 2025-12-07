@@ -1080,8 +1080,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                     return 0;
                                 })
                                 .map((s) => {
-                                    // Calculate Duration
-                                    let duration = '-';
+                                    // Calculate Duration & SLA
+                                    let durationText = '-';
+                                    let slaClass = 'text-slate-700';
+
                                     if (s.loadingStartTime && s.loadingEndTime) {
                                         const start = new Date(`1970-01-01T${s.loadingStartTime}`);
                                         const end = new Date(`1970-01-01T${s.loadingEndTime}`);
@@ -1090,7 +1092,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                             if (diff < 0) diff += 24 * 60;
                                             const hrs = Math.floor(diff / 60);
                                             const mins = Math.floor(diff % 60);
-                                            duration = `${hrs}h ${mins}m`;
+                                            durationText = `${hrs}h ${mins}m`;
+
+                                            // SLA Logic
+                                            if (diff > 60) slaClass = 'text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded';
+                                            else if (diff > 45) slaClass = 'text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded';
+                                            else slaClass = 'text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded';
                                         }
                                     }
 
@@ -1119,7 +1126,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                                 <div className={`${padClass} font-mono text-slate-500 text-xs ${textClass}`}>{s.loadingStartTime || '-'}</div>
                                                 <div className={`${padClass} font-mono text-slate-500 text-xs ${textClass}`}>{s.loadingEndTime || '-'}</div>
                                                 <div className={`${padClass} font-medium ${textClass}`}>
-                                                    {duration}
+                                                    <span className={slaClass}>{durationText}</span>
                                                 </div>
                                                 <div className={`${padClass}`}>
                                                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold

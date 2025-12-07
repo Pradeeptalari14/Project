@@ -22,6 +22,7 @@ import {
     XCircle,
     Image as ImageIcon
 } from 'lucide-react';
+import { IncidentModal } from './IncidentModal';
 
 // --- Extracted Component to prevent re-render focus loss ---
 // Added min-height and padding for better touch targets on mobile
@@ -48,6 +49,8 @@ export const LoadingSheet: React.FC<Props> = ({ sheet, onClose, initialPreview =
 
     // Controls to hide Submit / Show Print after completion
     const isCompleted = currentSheet.status === SheetStatus.COMPLETED;
+
+    const [isIncidentModalOpen, setIncidentModalOpen] = useState(false);
 
     // Print Preview State
     const [isPreview, setIsPreview] = useState(initialPreview);
@@ -344,7 +347,15 @@ export const LoadingSheet: React.FC<Props> = ({ sheet, onClose, initialPreview =
             {/* Preview Controls */}
             {isPreview && (
                 <div className="bg-slate-800 text-white p-4 rounded-xl shadow-lg flex justify-between items-center print:hidden sticky top-4 z-50">
-                    <div className="flex items-center gap-3"><div className="bg-blue-600 p-2 rounded-lg"><Printer size={20} /></div><div><h3 className="font-bold">Print Preview Mode</h3></div></div>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setIncidentModalOpen(true)}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-100 transition-colors border border-rose-100"
+                        >
+                            <AlertTriangle size={14} /> Report Issue
+                        </button>
+                        <div className="bg-blue-600 p-2 rounded-lg"><Printer size={20} /></div><div><h3 className="font-bold">Print Preview Mode</h3></div>
+                    </div>
                     <div className="flex gap-3"><button type="button" onClick={togglePreview} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm">Back</button><button type="button" onClick={printNow} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-bold flex items-center gap-2"><Printer size={16} /> Print</button></div>
                 </div>
             )}
@@ -709,6 +720,17 @@ export const LoadingSheet: React.FC<Props> = ({ sheet, onClose, initialPreview =
                     </div>
                 )}
             </div>
+
+            {isIncidentModalOpen && (
+                <IncidentModal
+                    sheetId={sheet.id}
+                    currentUser={currentUser?.username || ''}
+                    onClose={() => setIncidentModalOpen(false)}
+                    onSuccess={() => {
+                        // Optional: Show toast or update local state logic if needed
+                    }}
+                />
+            )}
         </div>
     );
 };
