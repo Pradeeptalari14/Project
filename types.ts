@@ -127,3 +127,12 @@ export interface SheetData {
   comments?: Comment[];
   history?: HistoryLog[];
 }
+
+export const EMPTY_STAGING_ITEMS: StagingItem[] = Array.from({ length: 15 }, (_, i) => ({
+  srNo: i + 1,
+  skuName: '',
+  casesPerPlt: 0,
+  fullPlt: 0,
+  loose: 0,
+  ttlCases: 0
+}));

@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../AppContext';
-import { SheetData, SheetStatus, StagingItem, LoadingItemData, AdditionalItem, Role } from '../types';
-import { EMPTY_STAGING_ITEMS } from '../services/mockData';
+import { SheetData, SheetStatus, StagingItem, LoadingItemData, AdditionalItem, Role, EMPTY_STAGING_ITEMS } from '../types';
 import { Save, Lock, ArrowLeft, Printer, Calendar, User, MapPin, Plus, AlertTriangle } from 'lucide-react';
 
 interface Props {
