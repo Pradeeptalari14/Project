@@ -875,7 +875,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                     </div>
                     <div className="overflow-hidden rounded-lg border border-slate-200 shadow-sm bg-white">
                         {/* Grid Header */}
-                        <div className="grid grid-cols-[1.2fr_1.2fr_1fr_1fr_0.8fr_0.8fr_0.8fr_1fr_1fr_1fr_100px] bg-slate-800 text-white font-bold text-xs uppercase divide-x divide-slate-700">
+                        <div className="grid grid-cols-[1.2fr_1fr_1.2fr_1.2fr_1fr_1fr_0.8fr_0.8fr_0.8fr_1fr_100px] bg-slate-800 text-white font-bold text-xs uppercase divide-x divide-slate-700 border-b border-slate-600">
+                            {/* Group Headers */}
+                            <div className="col-span-1 p-2 text-center bg-slate-900/50 text-blue-200 border-b border-slate-600">Sheet Info</div>
+                            <div className="col-span-2 p-2 text-center bg-slate-900/50 text-emerald-200 border-b border-slate-600">Staging Details</div>
+                            <div className="col-span-6 p-2 text-center bg-slate-900/50 text-amber-200 border-b border-slate-600">Loading Details</div>
+                            <div className="col-span-2 p-2 text-center bg-slate-900/50 text-gray-200 border-b border-slate-600">Status</div>
+
+                            {/* Column Headers */}
                             <div
                                 className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors"
                                 onClick={() => handleSort('id')}
@@ -888,6 +895,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                             >
                                 Date <ArrowUpDown size={14} className={sortConfig?.key === 'date' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
                             </div>
+                            <div
+                                className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors"
+                                onClick={() => handleSort('supervisorName')}
+                            >
+                                Staging SV <ArrowUpDown size={14} className={sortConfig?.key === 'supervisorName' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
+                            </div>
+                            <div className="p-4 flex items-center gap-2 text-gray-300">Loading SV</div>
                             <div className="p-4 flex items-center text-gray-300">Dock/Dest</div>
                             <div className="p-4 flex items-center text-gray-300">Transporter</div>
                             <div className="p-4 flex items-center text-gray-300">Start</div>
@@ -899,13 +913,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                             >
                                 Status <ArrowUpDown size={14} className={sortConfig?.key === 'status' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
                             </div>
-                            <div
-                                className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors"
-                                onClick={() => handleSort('supervisorName')}
-                            >
-                                Staging SV <ArrowUpDown size={14} className={sortConfig?.key === 'supervisorName' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
-                            </div>
-                            <div className="p-4 flex items-center gap-2 text-gray-300">Loading SV</div>
                             <div className="p-4 flex items-center justify-center text-gray-300">Actions</div>
                         </div>
 
@@ -955,9 +962,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                     }
 
                                     return (
-                                        <div key={s.id} onClick={() => onViewSheet(s)} className="grid grid-cols-[1.2fr_1.2fr_1fr_1fr_0.8fr_0.8fr_0.8fr_1fr_1fr_1fr_100px] hover:bg-slate-50 transition-colors items-center text-sm text-slate-700 group cursor-pointer">
+                                        <div key={s.id} onClick={() => onViewSheet(s)} className="grid grid-cols-[1.2fr_1fr_1.2fr_1.2fr_1fr_1fr_0.8fr_0.8fr_0.8fr_1fr_100px] hover:bg-slate-50 transition-colors items-center text-sm text-slate-700 group cursor-pointer">
                                             <div className="p-4 font-mono font-medium text-blue-600 group-hover:underline decoration-blue-200 underline-offset-4">{s.id}</div>
                                             <div className="p-4 text-slate-600">{s.date}</div>
+                                            <div className="p-4 text-slate-700 truncate" title={s.supervisorName}>{s.supervisorName}</div>
+                                            <div className="p-4 text-slate-700 truncate" title={s.loadingSvName}>{s.loadingSvName || '-'}</div>
                                             <div className="p-4 text-slate-600 truncate" title={s.loadingDockNo || s.destination}>{s.loadingDockNo || s.destination || '-'}</div>
                                             <div className="p-4 text-slate-600 truncate" title={s.transporter}>{s.transporter || '-'}</div>
                                             <div className="p-4 text-slate-500 font-mono text-xs">{s.loadingStartTime || '-'}</div>
@@ -972,8 +981,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                                     {s.status}
                                                 </span>
                                             </div>
-                                            <div className="p-4 text-slate-700 truncate" title={s.supervisorName}>{s.supervisorName}</div>
-                                            <div className="p-4 text-slate-700 truncate" title={s.loadingSvName}>{s.loadingSvName || '-'}</div>
                                             <div className="p-4 flex justify-center">
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleDelete(e, s.id); }}
