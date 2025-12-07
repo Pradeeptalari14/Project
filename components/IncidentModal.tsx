@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AlertTriangle, X, Send } from 'lucide-react';
 import { IncidentType, IncidentPriority } from '../types';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../services/supabaseClient';
 
 interface IncidentModalProps {
     sheetId: string;
