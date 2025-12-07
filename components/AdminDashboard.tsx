@@ -88,6 +88,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
     };
 
     // --- ANALYTICS DATA PREP ---
+
+    // Smart Name Resolution Helper
+    const resolveUserName = (username?: string) => {
+        if (!username) return undefined;
+        const user = users.find(u => u.username === username);
+        return user ? (user.fullName || user.username) : username;
+    };
+
     const stats = useMemo(() => {
         const total = sheets.length;
         const completed = sheets.filter(s => s.status === SheetStatus.COMPLETED).length;
@@ -965,8 +973,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                         <div key={s.id} onClick={() => onViewSheet(s)} className="grid grid-cols-[1.2fr_1fr_1.2fr_1.2fr_1fr_1fr_0.8fr_0.8fr_0.8fr_1fr_100px] hover:bg-slate-50 transition-colors items-center text-sm text-slate-700 group cursor-pointer">
                                             <div className="p-4 font-mono font-medium text-blue-600 group-hover:underline decoration-blue-200 underline-offset-4">{s.id}</div>
                                             <div className="p-4 text-slate-600">{s.date}</div>
-                                            <div className="p-4 text-slate-700 truncate" title={s.supervisorName}>{s.supervisorName}</div>
-                                            <div className="p-4 text-slate-700 truncate" title={s.loadingSvName}>{s.loadingSvName || '-'}</div>
+                                            <div className="p-4 text-slate-700 truncate" title={s.supervisorName || resolveUserName(s.createdBy)}>{s.supervisorName || resolveUserName(s.createdBy)}</div>
+                                            <div className="p-4 text-slate-700 truncate" title={s.loadingSvName || resolveUserName(s.completedBy)}>{s.loadingSvName || resolveUserName(s.completedBy) || '-'}</div>
                                             <div className="p-4 text-slate-600 truncate" title={s.loadingDockNo || s.destination}>{s.loadingDockNo || s.destination || '-'}</div>
                                             <div className="p-4 text-slate-600 truncate" title={s.transporter}>{s.transporter || '-'}</div>
                                             <div className="p-4 text-slate-500 font-mono text-xs">{s.loadingStartTime || '-'}</div>
