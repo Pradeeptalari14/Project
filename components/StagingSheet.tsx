@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../AppContext';
-import { SheetData, SheetStatus, StagingItem, LoadingItemData, AdditionalItem } from '../types';
+import { SheetData, SheetStatus, StagingItem, LoadingItemData, AdditionalItem, Role } from '../types';
 import { EMPTY_STAGING_ITEMS } from '../services/mockData';
 import { Save, Lock, ArrowLeft, Printer, Calendar, User, MapPin, Plus, AlertTriangle } from 'lucide-react';
 
@@ -14,7 +14,8 @@ interface Props {
 
 export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock, initialPreview = false }) => {
     const { currentUser, addSheet, updateSheet, acquireLock, releaseLock } = useApp();
-    const isLocked = existingSheet?.status === SheetStatus.LOCKED || existingSheet?.status === SheetStatus.COMPLETED;
+    const isLocked = (existingSheet?.status === SheetStatus.LOCKED || existingSheet?.status === SheetStatus.COMPLETED) ||
+        (existingSheet?.status === SheetStatus.DRAFT && existingSheet.createdBy !== currentUser?.username && currentUser?.role !== Role.ADMIN);
 
     // Print Preview State
     const [isPreview, setIsPreview] = useState(initialPreview);
@@ -284,7 +285,7 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
                         <tbody>
                             <tr>
                                 <td className="border border-black p-1 font-bold text-center bg-gray-100 w-10">Shift</td>
-                                <td colSpan={3} className="border border-black p-1 text-center font-bold text-lg">Staging & Loading Check Sheet</td>
+                                <td colSpan={3} className="border border-black p-1 text-center font-bold text-lg">Staging Check Sheet</td>
                                 <td className="border border-black p-1 font-bold bg-gray-100">Transporter</td>
                                 <td className="border border-black p-1"></td>
                                 <td className="border border-black p-1 font-bold bg-gray-100">Seal No.</td>

@@ -367,8 +367,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                             className={`bg-white p-4 rounded-xl shadow-sm border border-slate-200 transition-colors group ${isAdmin ? 'cursor-pointer hover:border-green-300 hover:shadow-md' : 'cursor-default'} flex items-center justify-between`}
                         >
                             <div>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-green-500 transition-colors">Completed Today</p>
-                                <h3 className="text-2xl font-bold text-slate-800 mt-1">{stats.completedToday}</h3>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-green-500 transition-colors">Completed</p>
+                                <h3 className="text-2xl font-bold text-slate-800 mt-1">{stats.completed}</h3>
                             </div>
                             <div className="p-3 bg-slate-50 rounded-lg text-slate-400 group-hover:bg-green-50 group-hover:text-green-600 transition-colors"><CheckCircle2 size={20} /></div>
                         </div>
