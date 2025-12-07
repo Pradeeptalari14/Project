@@ -59,7 +59,7 @@ export const Auth = () => {
                     isApproved: false
                 });
                 setIsLogin(true);
-                setSuccessMsg('Registration successful! Waiting for approval.');
+                setSuccessMsg('Registration successful! Please login.');
                 setUsername('');
                 setFullName('');
                 setEmpCode('');

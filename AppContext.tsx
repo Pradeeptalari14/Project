@@ -68,6 +68,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 .filter(d => d.data) // Filter out null data
                 .map(d => d.data as User);
             setUsers(mappedUsers);
+
+            // Auto-Seed Default Admin if DB is empty
+            if (mappedUsers.length === 0) {
+                console.log("No users found. Seeding default admin...");
+                const defaultAdmin: User = {
+                    id: "1",
+                    username: "admin",
+                    fullName: "System Administrator",
+                    role: Role.ADMIN,
+                    empCode: "ADM001",
+                    email: "admin@unicharm.com",
+                    isApproved: true,
+                    password: "123"
+                };
+
+                const { error: seedError } = await supabase.from('users').insert({
+                    id: defaultAdmin.id,
+                    data: defaultAdmin
+                });
+
+                if (!seedError) {
+                    setUsers([defaultAdmin]);
+                    addNotification("Default Admin (admin/123) created.");
+                } else {
+                    console.error("Failed to seed admin:", seedError);
+                }
+            }
         }
     };
 
@@ -130,14 +157,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     const register = async (user: User) => {
+        // Auto-approve first user as ADMIN
+        const isFirstUser = users.length === 0;
+        const finalUser = isFirstUser ? { ...user, role: Role.ADMIN, isApproved: true } : user;
+
         const { error } = await supabase.from('users').insert({
-            id: user.id || Date.now().toString() + Math.random().toString(36).substring(2, 9),
-            data: user
+            id: finalUser.id || Date.now().toString() + Math.random().toString(36).substring(2, 9),
+            data: finalUser
         });
         if (error) throw error;
+
+        if (isFirstUser) {
+            addLog('SYSTEM', `First user registered as ADMIN: ${finalUser.username}`);
+        }
+
         fetchUsers();
-        // Cannot log here easily as no user is logged in, but can try
-        // addLog('REGISTER', ...) // Skip for now if unauthenticated
     };
 
     const approveUser = async (id: string, approve: boolean) => {
