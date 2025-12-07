@@ -246,7 +246,7 @@ const App = () => {
                 );
 
             case 'audit':
-                return <AdminDashboard viewMode="analytics" onViewSheet={(s) => handleViewSheet(s)} />;
+                return <AdminDashboard viewMode="audit" onViewSheet={(s) => handleViewSheet(s)} />;
 
             default:
                 return <div>Page Not Found</div>;

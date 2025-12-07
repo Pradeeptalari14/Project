@@ -10,7 +10,7 @@ import {
     Check, X, Clipboard, Truck, Users as UserIcon, Trash2, Database,
     FileText, Search, Plus, ArrowUpDown, Download, Printer, Lock, Edit3, Eye, ShieldAlert,
     CheckCircle, XCircle, Key, UserPlus, Activity,
-    FileSpreadsheet, Filter, CheckCircle2
+    FileSpreadsheet, Filter, CheckCircle2, History
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { widgetRegistry, getWidgetDefinition } from './widgets/WidgetRegistry';
@@ -18,7 +18,7 @@ import { AddWidgetModal } from './widgets/AddWidgetModal';
 import { PlusCircle, MoreHorizontal, Settings2 } from 'lucide-react';
 
 interface AdminDashboardProps {
-    viewMode: 'analytics' | 'users' | 'database';
+    viewMode: 'analytics' | 'users' | 'database' | 'audit';
     onViewSheet: (sheet: SheetData) => void;
     onNavigate?: (page: string) => void;
     initialSearch?: string;
@@ -784,6 +784,69 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                             </div>
                         </div>
                     )}
+                </div>
+            </div>
+        );
+    }
+
+    // --- VIEW 4: AUDIT LOGS ---
+    if (viewMode === 'audit') {
+        const { auditLogs } = useApp();
+
+        return (
+            <div className="space-y-6">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <div className="mb-6">
+                        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <History className="text-blue-600" /> System Audit Logs
+                        </h2>
+                        <p className="text-sm text-gray-500">Track all system activities and user actions.</p>
+                    </div>
+
+                    <div className="overflow-hidden rounded-lg border border-slate-200 shadow-sm bg-white">
+                        <table className="w-full text-sm text-left">
+                            <thead className="bg-slate-800 text-white font-bold text-xs uppercase">
+                                <tr>
+                                    <th className="p-4 w-48">Timestamp</th>
+                                    <th className="p-4 w-32">User</th>
+                                    <th className="p-4 w-32">Action</th>
+                                    <th className="p-4">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {auditLogs && auditLogs.length > 0 ? (
+                                    auditLogs.map((log: any) => (
+                                        <tr key={log.id} className="hover:bg-slate-50 transition-colors">
+                                            <td className="p-4 text-slate-500 font-mono text-xs">
+                                                {new Date(log.timestamp).toLocaleString()}
+                                            </td>
+                                            <td className="p-4 font-bold text-slate-700">
+                                                {log.user}
+                                            </td>
+                                            <td className="p-4">
+                                                <span className={`px-2 py-1 rounded text-xs font-bold ${log.action.includes('DELETE') ? 'bg-red-100 text-red-700' :
+                                                    log.action.includes('CREATE') ? 'bg-green-100 text-green-700' :
+                                                        log.action.includes('UPDATE') ? 'bg-blue-100 text-blue-700' :
+                                                            'bg-slate-100 text-slate-600'
+                                                    }`}>
+                                                    {log.action}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 text-slate-600">
+                                                {log.details}
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={4} className="p-8 text-center text-slate-400 italic">
+                                            No audit logs found.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         );
