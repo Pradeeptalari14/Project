@@ -303,6 +303,12 @@ export const LoadingSheet: React.FC<Props> = ({ sheet, onClose, initialPreview =
     };
 
     const handleSubmit = () => {
+        // Validation: Supervisor Name is required for completion
+        if (!svName || svName.trim() === '') {
+            alert("Supervisor Name is required to complete the sheet.");
+            return;
+        }
+
         // Non-blocking save - gathers all data and completes immediately
         const finalSheet = buildSheetData(SheetStatus.COMPLETED);
         updateSheet(finalSheet);
