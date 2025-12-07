@@ -4,6 +4,7 @@ export interface WidgetProps {
     id: string;
     title: string;
     onRemove?: () => void;
+    onNavigate?: (page: string, filter?: string) => void;
 }
 
 export interface WidgetDefinition {

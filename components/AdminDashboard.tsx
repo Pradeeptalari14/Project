@@ -409,7 +409,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                             </button>
                                         </div>
                                     </div>
-                                    <WidgetComponent />
+                                    <WidgetComponent onNavigate={onNavigate} />
                                 </div>
                             );
                         })}

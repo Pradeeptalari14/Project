@@ -3,7 +3,7 @@ import { useApp } from '../../AppContext';
 import { Role, SheetStatus } from '../../types';
 import { Clock, AlertTriangle, Calendar, Activity } from 'lucide-react';
 
-export const StaffPerformanceWidget = () => {
+export const StaffPerformanceWidget = ({ onNavigate }: { onNavigate?: (page: string, filter?: string) => void }) => {
     const { users, sheets, currentUser } = useApp();
 
     // Helper for robust date checking
@@ -119,7 +119,12 @@ export const StaffPerformanceWidget = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                     {staffStats.map(staff => (
-                        <tr key={staff.id} className="hover:bg-slate-50">
+                        <tr
+                            key={staff.id}
+                            className="hover:bg-blue-50 cursor-pointer transition-colors group"
+                            onClick={() => onNavigate?.('database', staff.username)}
+                            title="Click to view detailed records"
+                        >
                             <td className="p-3 font-medium text-slate-700">
                                 <div className="flex items-center gap-2">
                                     <div className={`w-2 h-2 rounded-full ${staff.role === Role.STAGING_SUPERVISOR ? 'bg-blue-500' : 'bg-orange-500'}`}></div>

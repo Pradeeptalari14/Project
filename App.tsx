@@ -73,14 +73,19 @@ const App = () => {
     const activeSheet = selectedSheetId ? sheets.find(s => s.id === selectedSheetId) : null;
 
     // ... handlers ...
-    const handleNavigate = (page: string) => {
+    const handleNavigate = (page: string, filter?: string) => {
         // Handle Role-Based Filter Navigation (e.g. 'admin_STAGING_SUPERVISOR')
         if (page.startsWith('admin_')) {
             const roleFilter = page.replace('admin_', '').replace('_SUPERVISOR', ' SUPERVISOR'); // "STAGING SUPERVISOR"
             setInitialSearch(roleFilter);
             setCurrentPage('admin');
         } else {
-            setInitialSearch('');
+            // Apply specific filter if provided (User Drill-down)
+            if (filter) {
+                setInitialSearch(filter);
+            } else {
+                setInitialSearch('');
+            }
             setCurrentPage(page);
         }
         setSelectedSheetId(null);
