@@ -43,7 +43,7 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
         // Ensure we have at least 20 rows for the Excel look
         const targetRows = 20;
         const rows = initial.length < targetRows
-            ? [...initial, ...Array.from({ length: targetRows - initial.length }, (_, i) => ({ srNo: initial.length + i + 1, skuName: '', casesPerPlt: 0, fullPlt: 0, loose: 0, ttlCases: 0 }))]
+            ? [...initial, ...Array.from({ length: targetRows - initial.length }, (_, i) => ({ srNo: initial.length + i + 1, skuName: '', casesPerPlt: '', fullPlt: '', loose: '', ttlCases: '' }))]
             : initial;
 
         return JSON.parse(JSON.stringify(rows)).map((item: any) => ({
@@ -97,7 +97,7 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
     const handleAddRow = () => {
         setItems(prev => [
             ...prev,
-            { srNo: prev.length + 1, skuName: '', casesPerPlt: 0, fullPlt: 0, loose: 0, ttlCases: 0 }
+            { srNo: prev.length + 1, skuName: '', casesPerPlt: '', fullPlt: '', loose: '', ttlCases: '' }
         ]);
         setIsDirty(true);
     };
@@ -327,20 +327,19 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
                         </tbody>
                     </table>
 
-                    {/* Split Grids */}
-                    <div className="flex border border-black">
-                        {/* LEFT: STAGING DETAILS */}
-                        <div className="w-[40%] border-r border-black">
+                    {/* Split Grids - STAGING ONLY (Full Width) */}
+                    <div className="border border-black">
+                        <div className="w-full">
                             <div className="font-bold text-center bg-gray-200 border-b border-black p-1">STAGING DETAILS</div>
                             <table className="w-full text-[9px] border-collapse">
                                 <thead>
                                     <tr className="bg-gray-100">
-                                        <th className="border border-black p-1 w-8">Sr. No.</th>
-                                        <th className="border border-black p-1">SKU Name</th>
-                                        <th className="border border-black p-1 w-8">Cases/PLT</th>
-                                        <th className="border border-black p-1 w-8">Full PLT</th>
-                                        <th className="border border-black p-1 w-8">Loose</th>
-                                        <th className="border border-black p-1 w-10">TTL Cases</th>
+                                        <th className="border border-black p-1 w-12 text-center">Sr. No.</th>
+                                        <th className="border border-black p-1 text-left">SKU Name</th>
+                                        <th className="border border-black p-1 w-16 text-center">Cases/PLT</th>
+                                        <th className="border border-black p-1 w-16 text-center">Full PLT</th>
+                                        <th className="border border-black p-1 w-16 text-center">Loose</th>
+                                        <th className="border border-black p-1 w-20 text-center">TTL Cases</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -348,43 +347,16 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
                                         <tr key={i.srNo}>
                                             <td className="border border-black p-1 text-center">{i.srNo}</td>
                                             <td className="border border-black p-1">{i.skuName}</td>
-                                            <td className="border border-black p-1 text-center">{i.casesPerPlt || ''}</td>
-                                            <td className="border border-black p-1 text-center">{i.fullPlt || ''}</td>
-                                            <td className="border border-black p-1 text-center">{i.loose || ''}</td>
-                                            <td className="border border-black p-1 text-center font-bold bg-gray-100">{i.ttlCases || ''}</td>
+                                            <td className="border border-black p-1 text-center">{i.casesPerPlt}</td>
+                                            <td className="border border-black p-1 text-center">{i.fullPlt}</td>
+                                            <td className="border border-black p-1 text-center">{i.loose}</td>
+                                            <td className="border border-black p-1 text-center font-bold bg-gray-100">{i.ttlCases}</td>
                                         </tr>
                                     ))}
                                     <tr>
                                         <td colSpan={5} className="border border-black p-1 text-right font-bold">Total Staging Qty</td>
                                         <td className="border border-black p-1 text-center font-bold bg-gray-200">{totalQty}</td>
                                     </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {/* RIGHT: LOADING DETAILS (EMPTY STRUCTURE) */}
-                        <div className="w-[60%]">
-                            <div className="font-bold text-center bg-gray-200 border-b border-black p-1">LOADING DETAILS</div>
-                            <table className="w-full text-[9px] border-collapse">
-                                <thead>
-                                    <tr className="bg-gray-100">
-                                        <th className="border border-black p-1 w-8">S No.</th>
-                                        <th className="border border-black p-1">SKU Name</th>
-                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => <th key={n} className="border border-black p-1 w-4">{n}</th>)}
-                                        <th className="border border-black p-1 w-8">Total</th>
-                                        <th className="border border-black p-1 w-8">Balance</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {items.map((item, idx) => (
-                                        <tr key={idx}>
-                                            <td className="border border-black p-1 text-center text-gray-300">{idx + 1}</td>
-                                            <td className="border border-black p-1 text-gray-400">{item.skuName}</td>
-                                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => <td key={n} className="border border-black p-1"></td>)}
-                                            <td className="border border-black p-1"></td>
-                                            <td className="border border-black p-1"></td>
-                                        </tr>
-                                    ))}
                                 </tbody>
                             </table>
                         </div>

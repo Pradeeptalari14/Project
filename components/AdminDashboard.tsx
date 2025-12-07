@@ -352,8 +352,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                     {/* COL 3: GLOBAL SUMMARY (Merged KPIs) */}
                     <div className="space-y-4">
                         <div
-                            onClick={() => onNavigate?.('database')}
-                            className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:border-blue-300 transition-colors cursor-pointer hover:shadow-md group flex items-center justify-between"
+                            onClick={() => isAdmin && onNavigate?.('database')}
+                            className={`bg-white p-4 rounded-xl shadow-sm border border-slate-200 transition-colors group ${isAdmin ? 'cursor-pointer hover:border-blue-300 hover:shadow-md' : 'cursor-default'} flex items-center justify-between`}
                         >
                             <div>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-blue-500 transition-colors">Total Sheets</p>
@@ -363,8 +363,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                         </div>
 
                         <div
-                            onClick={() => onNavigate?.('database')}
-                            className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:border-green-300 transition-colors cursor-pointer hover:shadow-md group flex items-center justify-between"
+                            onClick={() => isAdmin && onNavigate?.('database')}
+                            className={`bg-white p-4 rounded-xl shadow-sm border border-slate-200 transition-colors group ${isAdmin ? 'cursor-pointer hover:border-green-300 hover:shadow-md' : 'cursor-default'} flex items-center justify-between`}
                         >
                             <div>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-green-500 transition-colors">Completed Today</p>
@@ -834,6 +834,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
 
     // --- VIEW 3: DATABASE PANEL ---
     if (viewMode === 'database') {
+        if (currentUser?.role !== Role.ADMIN) {
+            return (
+                <div className="flex flex-col items-center justify-center h-96 text-slate-400">
+                    <ShieldAlert size={48} className="mb-4 text-slate-300" />
+                    <h3 className="text-lg font-bold">Access Denied</h3>
+                    <p className="text-sm">You do not have permission to view the database.</p>
+                </div>
+            );
+        }
+
         return (
             <div className="space-y-6">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
