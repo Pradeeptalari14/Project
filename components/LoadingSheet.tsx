@@ -351,7 +351,8 @@ export const LoadingSheet: React.FC<Props> = ({ sheet, onClose, initialPreview =
                     <table className="w-full border-collapse border border-black mb-1">
                         <thead><tr><th colSpan={8} className="border border-black p-1 text-center text-xl font-bold">UCIA - FG WAREHOUSE</th></tr></thead>
                         <tbody>
-                            <tr><td className="border border-black p-1"></td><td className="border border-black p-1 font-bold"></td><td className="border border-black p-1">Transporter</td><td className="border border-black p-1 font-bold">{transporter}</td><td className="border border-black p-1">Loading Dock</td><td className="border border-black p-1 font-bold">{loadingDock}</td><td className="border border-black p-1">Seal No</td><td className="border border-black p-1 font-bold">{sealNo}</td></tr>
+                            <tr><td className="border border-black p-1 font-bold text-center bg-gray-100" colSpan={8}>Staging & Loading Check Sheet</td></tr>
+                            <tr><td className="border border-black p-1"></td><td className="border border-black p-1 font-bold"></td><td className="border border-black p-1">Transporter</td><td className="border border-black p-1 font-bold">{transporter}</td><td className="border border-black p-1"></td><td className="border border-black p-1 font-bold"></td><td className="border border-black p-1">Seal No</td><td className="border border-black p-1 font-bold">{sealNo}</td></tr>
                             <tr>
                                 <td rowSpan={3} className="border border-black p-1 text-center font-bold text-xl align-middle">{shift}</td>
                                 <td className="border border-black p-1 font-bold">Date</td>
@@ -447,13 +448,13 @@ export const LoadingSheet: React.FC<Props> = ({ sheet, onClose, initialPreview =
                                                     {/* Cells for this row */}
                                                     {Array.from({ length: 10 }).map((_, cIndex) => {
                                                         const cell = lItem.cells.find(c => c.row === rIndex && c.col === cIndex);
-                                                        return <td key={cIndex} className="border border-black p-1 text-center">{cell?.value || ''}</td>
+                                                        return <td key={cIndex} className="border border-black p-1 text-center">{cell?.value !== undefined ? cell.value : ''}</td>
                                                     })}
 
                                                     {/* Totals only on first row */}
                                                     {rIndex === 0 ? (
                                                         <>
-                                                            <td rowSpan={rowsNeeded} className="border border-black p-1 text-center align-middle">{lItem.looseInput || ''}</td>
+                                                            <td rowSpan={rowsNeeded} className="border border-black p-1 text-center align-middle">{lItem.looseInput !== undefined ? lItem.looseInput : ''}</td>
                                                             <td rowSpan={rowsNeeded} className="border border-black p-1 text-center align-middle">{lItem.total}</td>
                                                             <td rowSpan={rowsNeeded} className="border border-black p-1 text-center align-middle">{lItem.balance}</td>
                                                         </>

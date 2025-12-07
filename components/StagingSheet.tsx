@@ -286,44 +286,21 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
                             <tr>
                                 <td className="border border-black p-1 font-bold text-center bg-gray-100 w-10">Shift</td>
                                 <td colSpan={3} className="border border-black p-1 text-center font-bold text-lg">Staging Check Sheet</td>
-                                <td className="border border-black p-1 font-bold bg-gray-100">Transporter</td>
-                                <td className="border border-black p-1"></td>
-                                <td className="border border-black p-1 font-bold bg-gray-100">Seal No.</td>
-                                <td className="border border-black p-1"></td>
+                                <td className="border border-black p-1 w-24">Loading Dock No:</td>
+                                <td className="border border-black p-1 font-bold w-24">{loadingDockNo}</td>
                             </tr>
                             <tr>
-                                <td rowSpan={3} className="border border-black p-1 text-center font-bold text-xl align-middle">{shift}</td>
+                                <td rowSpan={2} className="border border-black p-1 text-center font-bold text-xl align-middle">{shift}</td>
                                 <td className="border border-black p-1 font-bold">Date</td>
                                 <td className="border border-black p-1">{date}</td>
                                 <td className="border border-black p-1 font-bold">Name of the SV / SG</td>
-                                <td className="border border-black p-1">{supervisorName}</td>
-                                <td className="border border-black p-1 font-bold">Loading Start Time</td>
-                                <td colSpan={2} className="border border-black p-1">{loadingStartTime}</td>
+                                <td colSpan={3} className="border border-black p-1">{supervisorName}</td>
                             </tr>
                             <tr>
-                                <td className="border border-black p-1 font-bold">Picking By</td>
-                                <td className="border border-black p-1"></td>
                                 <td className="border border-black p-1 font-bold">Destination</td>
                                 <td className="border border-black p-1">{destination}</td>
-                                <td className="border border-black p-1 font-bold">Loading End Time</td>
-                                <td colSpan={2} className="border border-black p-1">{loadingEndTime}</td>
-                            </tr>
-                            <tr>
-                                <td className="border border-black p-1 font-bold">Picking Crosschecked By</td>
-                                <td className="border border-black p-1"></td>
-                                <td className="border border-black p-1 font-bold">Vehicle No</td>
-                                <td className="border border-black p-1"></td>
-                                <td colSpan={2} className="border border-black p-1">Driver Name & Contact No</td>
-                                <td className="border border-black p-1"></td>
-                            </tr>
-                            <tr>
-                                <td className="border border-black p-1"></td>
-                                <td className="border border-black p-1 font-bold">Loading Dock No:</td>
-                                <td className="border border-black p-1">{loadingDockNo}</td>
-                                <td className="border border-black p-1 font-bold">Reg.Serial No</td>
-                                <td className="border border-black p-1"></td>
                                 <td className="border border-black p-1 font-bold">Emp.code</td>
-                                <td colSpan={2} className="border border-black p-1">{empCode}</td>
+                                <td colSpan={3} className="border border-black p-1">{empCode}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -364,38 +341,7 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
                     </div>
 
                     {/* Footer Signatures matching Excel */}
-                    <div className="border border-black border-t-0 flex">
-                        <div className="w-[40%] border-r border-black p-1">
-                            <div className="flex justify-between border-b border-black p-1"><span>Actual Loaded Qty</span><span></span></div>
-                            <div className="flex justify-between p-1"><span>Balance to be returned</span><span></span></div>
-                        </div>
-                        <div className="w-[60%] p-1">
-                            <div className="font-bold text-xs">Remarks (If any adjustment for shortage/excess, please mention details with approval no.)</div>
-                            <div className="h-8"></div>
-                        </div>
-                    </div>
-                    <div className="border border-black border-t-0 flex text-xs">
-                        <div className="w-1/4 border-r border-black p-1">
-                            <div className="font-bold border-b border-gray-300 mb-2">Supervisor Name</div>
-                            <div>{supervisorName}</div>
-                            <div className="text-[8px] text-gray-500">(after loading completed)</div>
-                        </div>
-                        <div className="w-1/4 border-r border-black p-1">
-                            <div className="font-bold border-b border-gray-300 mb-8">Supervisor Sign</div>
-                            <div className="text-[8px] text-gray-500">(after loading completed)</div>
-                        </div>
-                        <div className="w-1/4 border-r border-black p-1">
-                            <div className="font-bold border-b border-gray-300 mb-8">Name/Sign. SL</div>
-                            <div className="text-[8px] text-gray-500">(after loading completed & crosscheck)</div>
-                        </div>
-                        <div className="w-1/4 p-1">
-                            <div className="font-bold border-b border-gray-300 mb-8">Name/Sign. DEO</div>
-                            <div className="text-[8px] text-gray-500">(signing after cross check with documents)</div>
-                        </div>
-                    </div>
-                    <div className="border border-black border-t-0 p-2 text-center text-lg font-bold">
-                        TOTAL loaded Cases {'----->'}
-                    </div>
+                    {/* Footer Removed as per request */}
                 </div>
             </div>
 
