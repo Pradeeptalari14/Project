@@ -28,6 +28,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
     const { users, approveUser, deleteUser, sheets, deleteSheet, register, resetPassword, currentUser, isLoading } = useApp();
 
     const [searchTerm, setSearchTerm] = useState(initialSearch);
+    const [filterRole, setFilterRole] = useState<Role | 'ALL'>('ALL');
 
     // Create User State
     const [isCreateUserOpen, setCreateUserOpen] = useState(false);
@@ -457,8 +458,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
         );
     }
 
-    // User Filter State
-    const [filterRole, setFilterRole] = useState<Role | 'ALL'>('ALL');
+    // Moved to top: const [filterRole, setFilterRole] = useState<Role | 'ALL'>('ALL');
 
     // --- VIEW 2: USERS PANEL ---
     if (viewMode === 'users') {
