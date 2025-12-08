@@ -21,7 +21,7 @@ import { AddWidgetModal } from './widgets/AddWidgetModal';
 import { PlusCircle, MoreHorizontal, Settings2 } from 'lucide-react';
 
 interface AdminDashboardProps {
-    viewMode: 'analytics' | 'users' | 'database' | 'audit';
+    viewMode: 'analytics' | 'users' | 'database' | 'audit' | 'approvals';
     onViewSheet: (sheet: SheetData) => void;
     onNavigate?: (page: string) => void;
     initialSearch?: string;
@@ -497,8 +497,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
 
     // Moved to top: const [filterRole, setFilterRole] = useState<Role | 'ALL'>('ALL');
 
+
     // --- VIEW 2: USERS PANEL ---
     if (viewMode === 'users') {
+        // SECURITY CHECK: Shift Leads should NOT see this page
+        if (currentUser?.role === Role.SHIFT_LEAD) {
+            return (
+                <div className="flex flex-col items-center justify-center h-64 text-center">
+                    <ShieldAlert size={64} className="text-red-300 mb-4" />
+                    <h2 className="text-xl font-bold text-slate-700">Access Denied</h2>
+                    <p className="text-slate-500 max-w-sm mt-2">You do not have permission to view User Administration settings.</p>
+                    <button
+                        onClick={() => onNavigate?.('dashboard')}
+                        className="mt-6 text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                        Return to Dashboard
+                    </button>
+                </div>
+            );
+        }
+
         const filteredUsers = users
             .filter(u => {
                 const searchMatch = u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1236,6 +1254,103 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                         </div> {/* End min-w wrapper */}
                     </div> {/* End overflow wrapper */}
                 </div> {/* End space-y-6 */}
+            </div>
+        );
+    }
+
+
+    // --- VIEW 4: APPROVALS PANEL ---
+    if (viewMode === 'approvals') {
+        const pendingStaging = sheets.filter(s => s.status === SheetStatus.STAGING_VERIFICATION_PENDING);
+        const pendingLoading = sheets.filter(s => s.status === SheetStatus.LOADING_VERIFICATION_PENDING);
+
+        return (
+            <div className="space-y-8 pb-20">
+                <div className="flex items-center gap-4 bg-white p-6 rounded-xl border border-purple-100 shadow-sm">
+                    <div className="p-3 bg-purple-100 text-purple-600 rounded-lg">
+                        <ShieldCheck size={24} />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold text-slate-800">Approvals Pending</h2>
+                        <p className="text-slate-500">Review and verify operational sheets before finalization.</p>
+                    </div>
+                </div>
+
+                {/* Staging Approvals */}
+                <div>
+                    <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
+                        <Clipboard className="text-blue-500" /> Staging Sheets ({pendingStaging.length})
+                    </h3>
+                    {pendingStaging.length > 0 ? (
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            {pendingStaging.map(sheet => (
+                                <div key={sheet.id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all group">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <span className="font-mono text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">
+                                            {sheet.id}
+                                        </span>
+                                        <div className="text-right">
+                                            <span className="text-xs font-semibold text-slate-500 block">{sheet.date}</span>
+                                            <span className="text-[10px] uppercase font-bold text-blue-500">{sheet.shift}</span>
+                                        </div>
+                                    </div>
+                                    <div className="mb-4 space-y-1">
+                                        <p className="text-sm font-medium text-slate-700">Supervisor: <span className="font-bold">{sheet.supervisorName}</span></p>
+                                        <p className="text-xs text-slate-500 truncate" title={sheet.destination}>Dest: {sheet.destination}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => onViewSheet(sheet)}
+                                        className="w-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        Review Sheet <ChevronRight size={16} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="p-8 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-center text-slate-400">
+                            No staging sheets currently pending approval.
+                        </div>
+                    )}
+                </div>
+
+                {/* Loading Approvals */}
+                <div>
+                    <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
+                        <Truck className="text-orange-500" /> Loading Sheets ({pendingLoading.length})
+                    </h3>
+                    {pendingLoading.length > 0 ? (
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            {pendingLoading.map(sheet => (
+                                <div key={sheet.id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all group">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <span className="font-mono text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">
+                                            {sheet.id}
+                                        </span>
+                                        <div className="text-right">
+                                            <span className="text-xs font-semibold text-slate-500 block">{sheet.date}</span>
+                                            <span className="text-[10px] uppercase font-bold text-orange-500">{sheet.shift}</span>
+                                        </div>
+                                    </div>
+                                    <div className="mb-4 space-y-1">
+                                        <p className="text-sm font-medium text-slate-700">Loading Sv: <span className="font-bold">{sheet.loadingSvName || 'N/A'}</span></p>
+                                        <p className="text-xs text-slate-500">Dock: <span className="font-mono">{sheet.loadingDockNo}</span></p>
+                                    </div>
+                                    <button
+                                        onClick={() => onViewSheet(sheet)}
+                                        className="w-full bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        Review Sheet <ChevronRight size={16} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="p-8 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-center text-slate-400">
+                            No loading sheets currently pending approval.
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }
