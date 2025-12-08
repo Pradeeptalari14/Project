@@ -509,7 +509,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
 
                         {/* Role Filter Tabs (Admin Only) */}
                         {currentUser?.role === Role.ADMIN && (
-                            <div className="flex bg-slate-100 p-1 rounded-lg">
+                            <div className="flex flex-wrap bg-slate-100 p-1 rounded-lg">
                                 <button
                                     onClick={() => setFilterRole('ALL')}
                                     className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${filterRole === 'ALL' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
@@ -551,7 +551,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 <input
                                     type="text"
                                     placeholder="Search users..."
-                                    className="pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-slate-50 transition-all w-64"
+                                    className="pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-slate-50 transition-all w-full sm:w-64"
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
                                 />
@@ -887,7 +887,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                             </h2>
                             <p className="text-sm text-gray-500">View and manage all system data records.</p>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-3">
                             <button
                                 onClick={handleExportExcel}
                                 className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-lg shadow-sm transition-all text-sm font-medium"
@@ -898,8 +898,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                                 <input
                                     type="text"
-                                    placeholder="Search sheets, staff, vehicle..."
-                                    className={`pl-10 pr-10 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-w-[240px] ${searchTerm ? 'border-blue-500 bg-blue-50/50' : 'border-slate-200 bg-slate-50'}`}
+                                    placeholder="Search sheets..."
+                                    className={`pl-10 pr-10 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all w-full sm:min-w-[240px] ${searchTerm ? 'border-blue-500 bg-blue-50/50' : 'border-slate-200 bg-slate-50'}`}
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
                                 />
@@ -973,213 +973,215 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                         </div>
                     )}
 
-                    <div className="overflow-hidden rounded-lg border border-slate-200 shadow-sm bg-white">
-                        {/* Grid Header */}
-                        <div className="grid grid-cols-[1.2fr_1fr_1.2fr_1.2fr_1fr_1fr_0.8fr_0.8fr_0.8fr_1fr_100px] bg-slate-800 text-white font-bold text-xs uppercase divide-x divide-slate-700 border-b border-slate-600">
-                            {/* Group Headers */}
-                            <div className="col-span-1 p-2 text-center bg-slate-900/50 text-blue-200 border-b border-slate-600">Sheet Info</div>
-                            <div className="col-span-2 p-2 text-center bg-slate-900/50 text-emerald-200 border-b border-slate-600">Staging Details</div>
-                            <div className="col-span-6 p-2 text-center bg-slate-900/50 text-amber-200 border-b border-slate-600">Loading Details</div>
-                            <div className="col-span-2 p-2 text-center bg-slate-900/50 text-gray-200 border-b border-slate-600">Status</div>
+                    <div className="overflow-hidden rounded-lg border border-slate-200 shadow-sm bg-white overflow-x-auto">
+                        <div className="min-w-[1200px]">
+                            {/* Grid Header */}
+                            <div className="grid grid-cols-[1.2fr_1fr_1.2fr_1.2fr_1fr_1fr_0.8fr_0.8fr_0.8fr_1fr_100px] bg-slate-800 text-white font-bold text-xs uppercase divide-x divide-slate-700 border-b border-slate-600">
+                                {/* Group Headers */}
+                                <div className="col-span-1 p-2 text-center bg-slate-900/50 text-blue-200 border-b border-slate-600">Sheet Info</div>
+                                <div className="col-span-2 p-2 text-center bg-slate-900/50 text-emerald-200 border-b border-slate-600">Staging Details</div>
+                                <div className="col-span-6 p-2 text-center bg-slate-900/50 text-amber-200 border-b border-slate-600">Loading Details</div>
+                                <div className="col-span-2 p-2 text-center bg-slate-900/50 text-gray-200 border-b border-slate-600">Status</div>
 
-                            {/* Column Headers */}
-                            <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('id')}>
-                                Sheet ID <ArrowUpDown size={14} className={sortConfig?.key === 'id' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
+                                {/* Column Headers */}
+                                <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('id')}>
+                                    Sheet ID <ArrowUpDown size={14} className={sortConfig?.key === 'id' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
+                                </div>
+                                <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('date')}>
+                                    Date <ArrowUpDown size={14} className={sortConfig?.key === 'date' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
+                                </div>
+                                <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('supervisorName')}>
+                                    Staging SV <ArrowUpDown size={14} className={sortConfig?.key === 'supervisorName' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
+                                </div>
+                                <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('loadingSvName')}>
+                                    Loading SV <ArrowUpDown size={14} className={sortConfig?.key === 'loadingSvName' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
+                                </div>
+                                <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('dock')}>
+                                    Dock/Dest <ArrowUpDown size={14} className={sortConfig?.key === 'dock' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
+                                </div>
+                                <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('transporter')}>
+                                    Transporter <ArrowUpDown size={14} className={sortConfig?.key === 'transporter' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
+                                </div>
+                                <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('loadingStartTime')}>
+                                    Start <ArrowUpDown size={14} className={sortConfig?.key === 'loadingStartTime' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
+                                </div>
+                                <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('loadingEndTime')}>
+                                    End <ArrowUpDown size={14} className={sortConfig?.key === 'loadingEndTime' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
+                                </div>
+                                <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('duration')}>
+                                    Duration <ArrowUpDown size={14} className={sortConfig?.key === 'duration' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
+                                </div>
+                                <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('status')}>
+                                    Status <ArrowUpDown size={14} className={sortConfig?.key === 'status' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
+                                </div>
+                                <div className="p-4 flex items-center justify-center text-gray-300">Actions</div>
                             </div>
-                            <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('date')}>
-                                Date <ArrowUpDown size={14} className={sortConfig?.key === 'date' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
-                            </div>
-                            <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('supervisorName')}>
-                                Staging SV <ArrowUpDown size={14} className={sortConfig?.key === 'supervisorName' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
-                            </div>
-                            <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('loadingSvName')}>
-                                Loading SV <ArrowUpDown size={14} className={sortConfig?.key === 'loadingSvName' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
-                            </div>
-                            <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('dock')}>
-                                Dock/Dest <ArrowUpDown size={14} className={sortConfig?.key === 'dock' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
-                            </div>
-                            <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('transporter')}>
-                                Transporter <ArrowUpDown size={14} className={sortConfig?.key === 'transporter' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
-                            </div>
-                            <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('loadingStartTime')}>
-                                Start <ArrowUpDown size={14} className={sortConfig?.key === 'loadingStartTime' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
-                            </div>
-                            <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('loadingEndTime')}>
-                                End <ArrowUpDown size={14} className={sortConfig?.key === 'loadingEndTime' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
-                            </div>
-                            <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('duration')}>
-                                Duration <ArrowUpDown size={14} className={sortConfig?.key === 'duration' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
-                            </div>
-                            <div className="p-4 flex items-center gap-2 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => handleSort('status')}>
-                                Status <ArrowUpDown size={14} className={sortConfig?.key === 'status' ? 'text-blue-400 opacity-100' : 'text-white opacity-30'} />
-                            </div>
-                            <div className="p-4 flex items-center justify-center text-gray-300">Actions</div>
-                        </div>
 
-                        {/* Grid Body */}
-                        <div className="divide-y divide-slate-100">
-                            {sheets
-                                .filter(s => {
-                                    if (!searchTerm) return true;
-                                    const term = searchTerm.toLowerCase();
-                                    return (
-                                        s.id.toLowerCase().includes(term) ||
-                                        s.supervisorName.toLowerCase().includes(term) ||
-                                        (s.loadingSvName && s.loadingSvName.toLowerCase().includes(term)) ||
-                                        s.createdBy.toLowerCase().includes(term) ||
-                                        (s.completedBy && s.completedBy.toLowerCase().includes(term)) ||
-                                        (s.driverName && s.driverName.toLowerCase().includes(term)) ||
-                                        (s.vehicleNo && s.vehicleNo.toLowerCase().includes(term)) ||
-                                        (s.destination && s.destination.toLowerCase().includes(term))
-                                    );
-                                })
-                                .sort((a, b) => {
-                                    if (!sortConfig) return 0;
-                                    const { key, direction } = sortConfig;
+                            {/* Grid Body */}
+                            <div className="divide-y divide-slate-100">
+                                {sheets
+                                    .filter(s => {
+                                        if (!searchTerm) return true;
+                                        const term = searchTerm.toLowerCase();
+                                        return (
+                                            s.id.toLowerCase().includes(term) ||
+                                            s.supervisorName.toLowerCase().includes(term) ||
+                                            (s.loadingSvName && s.loadingSvName.toLowerCase().includes(term)) ||
+                                            s.createdBy.toLowerCase().includes(term) ||
+                                            (s.completedBy && s.completedBy.toLowerCase().includes(term)) ||
+                                            (s.driverName && s.driverName.toLowerCase().includes(term)) ||
+                                            (s.vehicleNo && s.vehicleNo.toLowerCase().includes(term)) ||
+                                            (s.destination && s.destination.toLowerCase().includes(term))
+                                        );
+                                    })
+                                    .sort((a, b) => {
+                                        if (!sortConfig) return 0;
+                                        const { key, direction } = sortConfig;
 
-                                    // Helper to get value for sorting
-                                    const getValue = (item: SheetData, sortKey: string) => {
-                                        if (sortKey === 'duration') {
-                                            if (!item.loadingStartTime || !item.loadingEndTime) return -1;
-                                            const start = new Date(`1970-01-01T${item.loadingStartTime}`).getTime();
-                                            const end = new Date(`1970-01-01T${item.loadingEndTime}`).getTime();
-                                            return end - start;
-                                        }
-                                        if (sortKey === 'loadingSvName') return resolveUserName(item.loadingSvName, item.completedBy) || '';
-                                        if (sortKey === 'supervisorName') return resolveUserName(item.supervisorName, item.createdBy) || '';
-                                        if (sortKey === 'dock') return item.loadingDockNo || item.destination || '';
-                                        if (sortKey === 'transporter') return item.transporter || '';
-                                        if (sortKey === 'loadingStartTime' || sortKey === 'loadingEndTime') {
-                                            return item[sortKey] ? new Date(`1970-01-01T${item[sortKey]}`).getTime() : -1;
-                                        }
-
-                                        return item[sortKey as keyof SheetData];
-                                    };
-
-                                    const valA = getValue(a, key as string);
-                                    const valB = getValue(b, key as string);
-
-                                    if (key === 'date') {
-                                        const parseDate = (d: any) => {
-                                            if (!d) return 0;
-                                            const str = String(d);
-                                            if (str.includes('/')) {
-                                                const parts = str.split('/');
-                                                if (parts.length === 3) return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).getTime();
+                                        // Helper to get value for sorting
+                                        const getValue = (item: SheetData, sortKey: string) => {
+                                            if (sortKey === 'duration') {
+                                                if (!item.loadingStartTime || !item.loadingEndTime) return -1;
+                                                const start = new Date(`1970-01-01T${item.loadingStartTime}`).getTime();
+                                                const end = new Date(`1970-01-01T${item.loadingEndTime}`).getTime();
+                                                return end - start;
                                             }
-                                            return new Date(str).getTime();
+                                            if (sortKey === 'loadingSvName') return resolveUserName(item.loadingSvName, item.completedBy) || '';
+                                            if (sortKey === 'supervisorName') return resolveUserName(item.supervisorName, item.createdBy) || '';
+                                            if (sortKey === 'dock') return item.loadingDockNo || item.destination || '';
+                                            if (sortKey === 'transporter') return item.transporter || '';
+                                            if (sortKey === 'loadingStartTime' || sortKey === 'loadingEndTime') {
+                                                return item[sortKey] ? new Date(`1970-01-01T${item[sortKey]}`).getTime() : -1;
+                                            }
+
+                                            return item[sortKey as keyof SheetData];
                                         };
-                                        const timeA = parseDate(valA);
-                                        const timeB = parseDate(valB);
-                                        return direction === 'asc' ? timeA - timeB : timeB - timeA;
-                                    }
 
-                                    if (typeof valA === 'string' && typeof valB === 'string') {
-                                        const comparison = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
-                                        return direction === 'asc' ? comparison : -comparison;
-                                    }
+                                        const valA = getValue(a, key as string);
+                                        const valB = getValue(b, key as string);
 
-                                    if (valA < valB) return direction === 'asc' ? -1 : 1;
-                                    if (valA > valB) return direction === 'asc' ? 1 : -1;
-                                    return 0;
-                                })
-                                .map((s) => {
-                                    // Calculate Duration & SLA
-                                    let durationText = '-';
-                                    let slaClass = 'text-slate-700';
-
-                                    if (s.loadingStartTime && s.loadingEndTime) {
-                                        const start = new Date(`1970-01-01T${s.loadingStartTime}`);
-                                        const end = new Date(`1970-01-01T${s.loadingEndTime}`);
-                                        if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
-                                            let diff = (end.getTime() - start.getTime()) / 60000;
-                                            if (diff < 0) diff += 24 * 60;
-                                            const hrs = Math.floor(diff / 60);
-                                            const mins = Math.floor(diff % 60);
-                                            durationText = `${hrs}h ${mins}m`;
-
-                                            // SLA Logic
-                                            if (diff > 60) slaClass = 'text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded';
-                                            else if (diff > 45) slaClass = 'text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded';
-                                            else slaClass = 'text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded';
+                                        if (key === 'date') {
+                                            const parseDate = (d: any) => {
+                                                if (!d) return 0;
+                                                const str = String(d);
+                                                if (str.includes('/')) {
+                                                    const parts = str.split('/');
+                                                    if (parts.length === 3) return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).getTime();
+                                                }
+                                                return new Date(str).getTime();
+                                            };
+                                            const timeA = parseDate(valA);
+                                            const timeB = parseDate(valB);
+                                            return direction === 'asc' ? timeA - timeB : timeB - timeA;
                                         }
-                                    }
 
-                                    const padClass = viewConfig.density === 'compact' ? 'p-2 text-xs' : viewConfig.density === 'comfortable' ? 'p-5' : 'p-4';
-                                    const textClass = viewConfig.wrapText ? 'whitespace-normal break-words' : 'truncate whitespace-nowrap';
+                                        if (typeof valA === 'string' && typeof valB === 'string') {
+                                            const comparison = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+                                            return direction === 'asc' ? comparison : -comparison;
+                                        }
 
-                                    return (
-                                        <div key={s.id} className="group bg-white hover:bg-slate-50 transition-colors">
-                                            <div className={`grid grid-cols-[1.2fr_1fr_1.2fr_1.2fr_1fr_1fr_0.8fr_0.8fr_0.8fr_1fr_100px] items-center text-sm text-slate-700`}>
-                                                <div className={`${padClass} font-mono font-bold text-blue-600 ${textClass}`}>{s.id}</div>
-                                                <div className={`${padClass} ${textClass}`}>{s.date}</div>
-                                                <div className={`${padClass}`}>
-                                                    <div className="flex items-center gap-1.5">
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                                                        <span className={textClass}>{resolveUserName(s.supervisorName, s.createdBy)}</span>
+                                        if (valA < valB) return direction === 'asc' ? -1 : 1;
+                                        if (valA > valB) return direction === 'asc' ? 1 : -1;
+                                        return 0;
+                                    })
+                                    .map((s) => {
+                                        // Calculate Duration & SLA
+                                        let durationText = '-';
+                                        let slaClass = 'text-slate-700';
+
+                                        if (s.loadingStartTime && s.loadingEndTime) {
+                                            const start = new Date(`1970-01-01T${s.loadingStartTime}`);
+                                            const end = new Date(`1970-01-01T${s.loadingEndTime}`);
+                                            if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+                                                let diff = (end.getTime() - start.getTime()) / 60000;
+                                                if (diff < 0) diff += 24 * 60;
+                                                const hrs = Math.floor(diff / 60);
+                                                const mins = Math.floor(diff % 60);
+                                                durationText = `${hrs}h ${mins}m`;
+
+                                                // SLA Logic
+                                                if (diff > 60) slaClass = 'text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded';
+                                                else if (diff > 45) slaClass = 'text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded';
+                                                else slaClass = 'text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded';
+                                            }
+                                        }
+
+                                        const padClass = viewConfig.density === 'compact' ? 'p-2 text-xs' : viewConfig.density === 'comfortable' ? 'p-5' : 'p-4';
+                                        const textClass = viewConfig.wrapText ? 'whitespace-normal break-words' : 'truncate whitespace-nowrap';
+
+                                        return (
+                                            <div key={s.id} className="group bg-white hover:bg-slate-50 transition-colors">
+                                                <div className={`grid grid-cols-[1.2fr_1fr_1.2fr_1.2fr_1fr_1fr_0.8fr_0.8fr_0.8fr_1fr_100px] items-center text-sm text-slate-700`}>
+                                                    <div className={`${padClass} font-mono font-bold text-blue-600 ${textClass}`}>{s.id}</div>
+                                                    <div className={`${padClass} ${textClass}`}>{s.date}</div>
+                                                    <div className={`${padClass}`}>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                                                            <span className={textClass}>{resolveUserName(s.supervisorName, s.createdBy)}</span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div className={`${padClass}`}>
-                                                    <div className="flex items-center gap-1.5">
-                                                        <div className={`w-1.5 h-1.5 rounded-full ${(s.loadingSvName || s.completedBy) ? 'bg-amber-500' : 'bg-slate-300'}`}></div>
-                                                        <span className={textClass}>{resolveUserName(s.loadingSvName, s.completedBy) || '-'}</span>
+                                                    <div className={`${padClass}`}>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <div className={`w-1.5 h-1.5 rounded-full ${(s.loadingSvName || s.completedBy) ? 'bg-amber-500' : 'bg-slate-300'}`}></div>
+                                                            <span className={textClass}>{resolveUserName(s.loadingSvName, s.completedBy) || '-'}</span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div className={`${padClass} text-slate-500 ${textClass}`}>{s.destination} ({s.loadingDockNo || '-'})</div>
-                                                <div className={`${padClass} text-slate-500 ${textClass}`}>{s.transporter || '-'}</div>
-                                                <div className={`${padClass} font-mono text-slate-500 text-xs ${textClass}`}>{s.loadingStartTime || '-'}</div>
-                                                <div className={`${padClass} font-mono text-slate-500 text-xs ${textClass}`}>{s.loadingEndTime || '-'}</div>
-                                                <div className={`${padClass} font-medium ${textClass}`}>
-                                                    <span className={slaClass}>{durationText}</span>
-                                                </div>
-                                                <div className={`${padClass}`}>
-                                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold
+                                                    <div className={`${padClass} text-slate-500 ${textClass}`}>{s.destination} ({s.loadingDockNo || '-'})</div>
+                                                    <div className={`${padClass} text-slate-500 ${textClass}`}>{s.transporter || '-'}</div>
+                                                    <div className={`${padClass} font-mono text-slate-500 text-xs ${textClass}`}>{s.loadingStartTime || '-'}</div>
+                                                    <div className={`${padClass} font-mono text-slate-500 text-xs ${textClass}`}>{s.loadingEndTime || '-'}</div>
+                                                    <div className={`${padClass} font-medium ${textClass}`}>
+                                                        <span className={slaClass}>{durationText}</span>
+                                                    </div>
+                                                    <div className={`${padClass}`}>
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold
                                                         ${s.status === SheetStatus.COMPLETED ? 'bg-green-100 text-green-700' :
-                                                            s.status === SheetStatus.LOCKED ? 'bg-amber-100 text-amber-700' :
-                                                                'bg-slate-100 text-slate-600'}`}>
-                                                        {s.status === SheetStatus.COMPLETED && <CheckCircle2 size={12} />}
-                                                        {s.status === SheetStatus.LOCKED && <Clock size={12} />}
-                                                        {s.status === SheetStatus.DRAFT && <Edit size={12} />}
-                                                        {s.status}
-                                                    </span>
-                                                </div>
-                                                <div className={`${padClass} flex justify-center`}>
-                                                    <button
-                                                        onClick={() => onNavigate?.('admin')} // In real app, view details
-                                                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                        title="View Details"
-                                                    >
-                                                        <Eye size={16} />
-                                                    </button>
-                                                    {currentUser?.role === 'ADMIN' && (
+                                                                s.status === SheetStatus.LOCKED ? 'bg-amber-100 text-amber-700' :
+                                                                    'bg-slate-100 text-slate-600'}`}>
+                                                            {s.status === SheetStatus.COMPLETED && <CheckCircle2 size={12} />}
+                                                            {s.status === SheetStatus.LOCKED && <Clock size={12} />}
+                                                            {s.status === SheetStatus.DRAFT && <Edit size={12} />}
+                                                            {s.status}
+                                                        </span>
+                                                    </div>
+                                                    <div className={`${padClass} flex justify-center`}>
                                                         <button
-                                                            onClick={() => {
-                                                                const reason = prompt('Are you sure? Enter a reason to delete this sheet:');
-                                                                if (reason) {
-                                                                    deleteSheet(s.id, reason);
-                                                                }
-                                                            }}
-                                                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                            title="Delete Sheet"
+                                                            onClick={() => onNavigate?.('admin')} // In real app, view details
+                                                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="View Details"
                                                         >
-                                                            <Trash2 size={16} />
+                                                            <Eye size={16} />
                                                         </button>
-                                                    )}
+                                                        {currentUser?.role === 'ADMIN' && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    const reason = prompt('Are you sure? Enter a reason to delete this sheet:');
+                                                                    if (reason) {
+                                                                        deleteSheet(s.id, reason);
+                                                                    }
+                                                                }}
+                                                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                                title="Delete Sheet"
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            {/* EXPANDED ROW DETAILS */}
-                                            {/* Removed expanded row details as per instruction */}
-                                        </div>
-                                    );
-                                })
-                            }
-                            {sheets.length === 0 && (
-                                <div className="p-12 text-center text-slate-400 italic">No records found.</div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                                                {/* EXPANDED ROW DETAILS */}
+                                                {/* Removed expanded row details as per instruction */}
+                                            </div>
+                                        );
+                                    })
+                                }
+                                {sheets.length === 0 && (
+                                    <div className="p-12 text-center text-slate-400 italic">No records found.</div>
+                                )}
+                            </div> {/* End Grid Body ?? No wait */}
+                        </div> {/* End min-w wrapper */}
+                    </div> {/* End overflow wrapper */}
+                </div> {/* End space-y-6 */}
             </div>
         );
     }

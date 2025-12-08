@@ -73,9 +73,10 @@ export const IncidentListWidget: React.FC<IncidentListWidgetProps> = ({ onViewSh
 
                             <p className="text-sm text-slate-800 font-medium mb-2">{inc.description}</p>
 
-                            <div className="flex items-center justify-between text-xs text-slate-500">
-                                <div className="flex items-center gap-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
                                     <span>By: <span className="font-semibold text-slate-700">{inc.createdBy}</span></span>
+                                    <span className="hidden sm:inline text-slate-300">|</span>
                                     <span>Sheet:
                                         {sheet ? (
                                             <button
@@ -89,7 +90,9 @@ export const IncidentListWidget: React.FC<IncidentListWidgetProps> = ({ onViewSh
                                         )}
                                     </span>
                                 </div>
-                                <span className="font-mono">{new Date(inc.createdAt).toLocaleString()}</span>
+                                <span className="font-mono text-[10px] sm:text-xs text-slate-400">
+                                    {new Date(inc.createdAt).toLocaleDateString()} {new Date(inc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
                             </div>
                         </div>
                     );
