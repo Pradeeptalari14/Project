@@ -52,7 +52,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
         empCode: '',
         email: '',
         password: '',
-        role: Role.VIEWER
+        role: Role.STAGING_SUPERVISOR
     });
 
     // Reset Password State
@@ -262,7 +262,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
         });
 
         setCreateUserOpen(false);
-        setNewUser({ username: '', fullName: '', empCode: '', email: '', password: '', role: Role.VIEWER });
+        setNewUser({ username: '', fullName: '', empCode: '', email: '', password: '', role: Role.STAGING_SUPERVISOR });
         alert('User created successfully.');
     };
 
@@ -788,7 +788,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                             <option value={Role.LOADING_SUPERVISOR}>Loading Supervisor</option>
                                             <option value={Role.SHIFT_LEAD}>Shift Lead</option>
                                             <option value={Role.ADMIN}>Administrator</option>
-                                            <option value={Role.VIEWER}>Viewer</option>
                                         </select>
                                     </div>
                                     <div className="pt-4">

@@ -177,7 +177,7 @@ export const Auth = () => {
                             <option value={Role.STAGING_SUPERVISOR} className="text-slate-900">Staging Supervisor</option>
                             <option value={Role.LOADING_SUPERVISOR} className="text-slate-900">Loading Supervisor</option>
                             <option value={Role.ADMIN} className="text-slate-900">Administrator</option>
-                            <option value={Role.VIEWER} className="text-slate-900">Viewer</option>
+                            <option value={Role.SHIFT_LEAD} className="text-slate-900">Shift Lead</option>
                         </select>
                         <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-white/50">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
