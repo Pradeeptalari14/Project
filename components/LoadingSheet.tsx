@@ -294,7 +294,7 @@ export const LoadingSheet: React.FC<Props> = ({ sheet, onClose, initialPreview =
             transporter,
             loadingDockNo: loadingDock,
             loadingStartTime: startTime,
-            loadingEndTime: status === SheetStatus.COMPLETED ? new Date().toLocaleTimeString('en-US', { hour12: false }) : endTime,
+            loadingEndTime: endTime,
             pickingBy,
             pickingCrosscheckedBy,
             vehicleNo,
