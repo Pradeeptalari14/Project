@@ -12,7 +12,8 @@ import {
     FileSpreadsheet, Filter, CheckCircle2, History,
     LayoutDashboard, Settings, LogOut, ChevronLeft, ChevronRight,
     AlertCircle, Clock, Calendar, Edit, ShieldCheck,
-    Minimize2, Maximize2, ChevronDown, CheckSquare, AlignJustify
+    Minimize2, Maximize2, ChevronDown, CheckSquare, AlignJustify,
+    Timer, TableProperties
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { widgetRegistry, getWidgetDefinition } from './widgets/WidgetRegistry';
@@ -34,7 +35,7 @@ interface ViewConfig {
     wrapText: boolean;
 }
 
-// Forced HMR Rebuild v2
+// Forced HMR Rebuild v3
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onViewSheet, onNavigate, initialSearch = '' }) => {
     const { users, approveUser, deleteUser, sheets, deleteSheet, register, resetPassword, currentUser, isLoading } = useApp();
 
@@ -61,7 +62,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
         if (!currentUser?.username) return ['staff-performance', 'sla-monitor', 'incident-list'];
         try {
             const saved = localStorage.getItem(`unicharm_widgets_restored_v2_${currentUser.username}`);
-            // Auto-migrate: If saved config exists but doesn't have incident-list, add it (for this update)
             const loaded = saved ? JSON.parse(saved) : ['staff-performance', 'sla-monitor', 'incident-list'];
             if (!loaded.includes('incident-list')) loaded.push('incident-list');
             return loaded;
@@ -77,6 +77,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
         density: 'normal',
         wrapText: false
     });
+    // NEW: Database View Mode (Standard vs Duration)
+    const [dbViewMode, setDbViewMode] = useState<'details' | 'duration'>('details');
     const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
 
     // Sort State
@@ -113,6 +115,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
         if (!fallbackUsername) return undefined;
         const user = users.find(u => u.username === fallbackUsername);
         return user ? (user.fullName || user.username) : fallbackUsername;
+    };
+
+    // Navigation Helper
+    const navigateToDatabase = (statusFilter: string) => {
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('view', 'database'); // Ensure we switch tab if logic depends on it, though router usually handles path
+        // For this app architecture, it seems we might be relying on props or URL.
+        // Let's assume URL query param driving viewMode or just reload with param.
+        newUrl.searchParams.set('status', statusFilter);
+        window.history.pushState({}, '', newUrl.toString());
+        window.location.reload(); // Force reload to pick up new state if simple routing isn't fully reactive to URL params
     };
 
     // --- HELPER FUNCTIONS ---
@@ -194,6 +207,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
 
         // Loading
         const loadingTotal = sheets.length;
+        // Correct calculation for Loading: 'Locked' belongs here as "Ready to Load" but conceptually flows from staging.
         const loadingLocked = sheets.filter(s => s.status === SheetStatus.LOCKED).length;
         const loadingPending = sheets.filter(s => s.status === SheetStatus.LOADING_VERIFICATION_PENDING).length;
         const loadingCompleted = completed;
@@ -254,9 +268,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                             <div className="p-2 bg-blue-100 rounded-lg text-blue-600"><Clipboard size={20} /></div>
                             <div><h3 className="font-bold text-slate-700">Staging Overview</h3><div className="text-xs text-slate-400">{stats.staging.staff} Staff</div></div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-3 bg-blue-50/50 rounded-lg"><span className="text-[10px] text-blue-500 uppercase font-bold block mb-1">Drafts</span><span className="text-xl font-bold text-blue-700">{stats.staging.drafts}</span></div>
-                            <div className="p-3 bg-yellow-50 rounded-lg"><span className="text-[10px] text-yellow-600 uppercase font-bold block mb-1">Pending</span><span className="text-xl font-bold text-yellow-700">{stats.staging.pending}</span></div>
+                        <div className="grid grid-cols-3 gap-2"> {/* Changed to 3 cols for Locked */}
+                            <div onClick={() => navigateToDatabase('DRAFT')} className="p-3 bg-blue-50/50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                                <span className="text-[10px] text-blue-500 uppercase font-bold block mb-1">Drafts</span>
+                                <span className="text-xl font-bold text-blue-700">{stats.staging.drafts}</span>
+                            </div>
+                            <div onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING')} className="p-3 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors">
+                                <span className="text-[10px] text-yellow-600 uppercase font-bold block mb-1">Pending</span>
+                                <span className="text-xl font-bold text-yellow-700">{stats.staging.pending}</span>
+                            </div>
+                            <div onClick={() => navigateToDatabase('LOCKED')} className="p-3 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span className="text-[10px] text-orange-600 uppercase font-bold block mb-1">Locked</span>
+                                <span className="text-xl font-bold text-orange-700">{stats.staging.locked}</span>
+                            </div>
                         </div>
                     </div>
                     {/* Loading */}
@@ -266,8 +290,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                             <div><h3 className="font-bold text-slate-700">Loading Overview</h3><div className="text-xs text-slate-400">{stats.loading.staff} Staff</div></div>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="p-2 bg-orange-50 rounded-lg"><span className="text-[10px] text-orange-600 uppercase font-bold block">Locked</span><span className="text-lg font-bold text-orange-700">{stats.loading.locked}</span></div>
-                            <div className="p-2 bg-yellow-50 rounded-lg"><span className="text-[10px] text-yellow-600 uppercase font-bold block">Pending</span><span className="text-lg font-bold text-yellow-700">{stats.loading.pending}</span></div>
+                            <div onClick={() => navigateToDatabase('LOCKED')} className="p-2 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors flex items-center justify-between group">
+                                <div>
+                                    <span className="text-[10px] text-orange-600 uppercase font-bold block mb-1">Ready to Load</span>
+                                    <span className="text-lg font-bold text-orange-700">{stats.loading.locked}</span>
+                                </div>
+                                <Lock className="text-orange-300 group-hover:text-orange-500 transition-colors" size={24} />
+                            </div>
+                            <div onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING')} className="p-2 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors flex items-center justify-between group">
+                                <div>
+                                    <span className="text-[10px] text-yellow-600 uppercase font-bold block mb-1">Pending</span>
+                                    <span className="text-lg font-bold text-yellow-700">{stats.loading.pending}</span>
+                                </div>
+                                <Clock className="text-yellow-300 group-hover:text-yellow-500 transition-colors" size={24} />
+                            </div>
                         </div>
                     </div>
                     {/* Approvals */}
@@ -277,8 +313,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                             <div><h3 className="font-bold text-slate-700">Approvals</h3><div className="text-xs text-slate-400">{stats.approvals.staff} Leads</div></div>
                         </div>
                         <div className="space-y-3">
-                            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg"><span className="text-sm font-bold text-slate-700">Staging</span><span className="text-lg font-bold text-blue-700">{stats.approvals.staging}</span></div>
-                            <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg"><span className="text-sm font-bold text-slate-700">Loading</span><span className="text-lg font-bold text-orange-700">{stats.approvals.loading}</span></div>
+                            <div onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING')} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                                <span className="text-sm font-bold text-slate-700">Staging</span>
+                                <span className="text-lg font-bold text-blue-700">{stats.approvals.staging}</span>
+                            </div>
+                            <div onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING')} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors">
+                                <span className="text-sm font-bold text-slate-700">Loading</span>
+                                <span className="text-lg font-bold text-orange-700">{stats.approvals.loading}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -357,6 +399,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 <input className="w-full border p-2 rounded" placeholder="Full Name" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} required />
                                 <input className="w-full border p-2 rounded" placeholder="Emp Code" value={newUser.empCode} onChange={e => setNewUser({ ...newUser, empCode: e.target.value })} required />
                                 <input className="w-full border p-2 rounded" placeholder="Password" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} required />
+                                <label className="block text-sm font-bold text-slate-700">Role</label>
+                                <select className="w-full border p-2 rounded" value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value as Role })}>
+                                    <option value={Role.STAGING_SUPERVISOR}>Staging Supervisor</option>
+                                    <option value={Role.LOADING_SUPERVISOR}>Loading Supervisor</option>
+                                    <option value={Role.SHIFT_LEAD}>Shift Lead</option>
+                                    <option value={Role.ADMIN}>Admin</option>
+                                </select>
                                 <div className="flex gap-2 justify-end mt-4"><button type="button" onClick={() => setCreateUserOpen(false)} className="px-4 py-2 border rounded">Cancel</button><button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Create</button></div>
                             </form>
                         </div>
@@ -469,16 +518,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
             return 0;
         });
 
-        // Simplified columns logic for "Created By/At" and "Approved By/At"
         return (
             <div className="space-y-6">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
                     <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                         <div>
-                            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2"><Database className="text-blue-600" /> Database Management</h2>
+                            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2"><Database className="text-blue-600" /> Database Management <span className="text-slate-400 font-medium text-lg">({filteredSheets.length})</span></h2>
                             <p className="text-sm text-gray-500">View and manage all system data.</p>
                         </div>
                         <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex items-center bg-slate-100 p-1 rounded-lg">
+                                <button
+                                    onClick={() => setDbViewMode('details')}
+                                    className={`px-3 py-1.5 rounded-md text-sm font-bold flex items-center gap-2 transition-all ${dbViewMode === 'details' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                >
+                                    <TableProperties size={14} /> Details
+                                </button>
+                                <button
+                                    onClick={() => setDbViewMode('duration')}
+                                    className={`px-3 py-1.5 rounded-md text-sm font-bold flex items-center gap-2 transition-all ${dbViewMode === 'duration' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                >
+                                    <Timer size={14} /> Duration
+                                </button>
+                            </div>
+
                             <button onClick={handleExportExcel} className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-lg shadow-sm transition-all text-sm font-medium">
                                 <Download size={16} /> Export All
                             </button>
@@ -492,9 +555,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                         newUrl.searchParams.set('status', 'LOCKED');
                                     }
                                     window.history.pushState({}, '', newUrl.toString());
-                                    // Trigger re-render by forcing update or reloading (simplest for now is just let React Router handle if we used it, but here we depend on window search. We might need a local state update to trigger re-render if we don't have a listener. 
-                                    // Actually, let's just use window.location.reload() for simplicity or better, assume the component re-reads URL on render? No, it reads once.
-                                    // Let's use a simple link navigation or reload. 
                                     window.location.reload();
                                 }}
                                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg shadow-sm transition-all text-sm font-bold border ${statusFilter === 'LOCKED' ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-orange-50'}`}
@@ -528,135 +588,131 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
 
                     <div className="overflow-hidden rounded-lg border border-slate-200 shadow-sm bg-white overflow-x-auto">
                         <div className="min-w-[1600px]">
-                            <div className="grid grid-cols-[100px_100px_120px_120px_120px_180px_180px_180px_180px_100px_80px] bg-slate-800 text-white font-bold text-xs uppercase divide-x divide-slate-700 border-b border-slate-600">
-                                <div className="p-4" onClick={() => handleSort('id')}>ID</div>
-                                <div className="p-4" onClick={() => handleSort('date')}>Date</div>
-                                <div className="p-4" onClick={() => handleSort('supervisorName')}>Staging SV</div>
-                                <div className="p-4" onClick={() => handleSort('loadingSvName')}>Loading SV</div>
-                                <div className="p-4" onClick={() => handleSort('createdBy')}>Created By</div>
-                                <div className="p-4" onClick={() => handleSort('createdAt')}>Created At</div>
-                                <div className="p-4" onClick={() => handleSort('stagingApprovedBy')}>Stg Appr By</div>
-                                <div className="p-4" onClick={() => handleSort('stagingApprovedAt')}>Stg Appr At</div>
-                                <div className="p-4" onClick={() => handleSort('loadingApprovedBy')}>Ldg Appr By</div>
-                                <div className="p-4" onClick={() => handleSort('status')}>Status</div>
-                                <div className="p-4 text-center">Actions</div>
-                            </div>
+                            {dbViewMode === 'details' ? (
+                                <div className="grid grid-cols-[100px_100px_120px_120px_120px_180px_180px_180px_180px_100px_80px] bg-slate-800 text-white font-bold text-xs uppercase divide-x divide-slate-700 border-b border-slate-600">
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('id')}>ID</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('date')}>Date</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('supervisorName')}>Staging SV</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('loadingSvName')}>Loading SV</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('createdBy')}>Created By</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('createdAt')}>Created At</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('stagingApprovedBy')}>Stg Appr By</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('stagingApprovedAt')}>Stg Appr At</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('loadingApprovedBy')}>Ldg Appr By</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('status')}>Status</div>
+                                    <div className="p-4 text-center">Actions</div>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-[100px_120px_180px_180px_180px_180px_180px_100px_80px] bg-slate-900 text-blue-100 font-bold text-xs uppercase divide-x divide-slate-800 border-b border-slate-700">
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('id')}>ID</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('date')}>Date</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('createdAt')}>Created At</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('stagingApprovedAt')}>Staging Verified</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('loadingApprovedAt')}>Loading Verified</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('completedAt')}>Completed At</div>
+                                    <div className="p-4">Process Duration</div>
+                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('status')}>Status</div>
+                                    <div className="p-4 text-center">Actions</div>
+                                </div>
+                            )}
 
                             <div className="divide-y divide-slate-100">
                                 {filteredSheets.length > 0 ? filteredSheets.map((s) => (
-                                    <div key={s.id} className="grid grid-cols-[100px_100px_120px_120px_120px_180px_180px_180px_180px_100px_80px] items-center text-sm text-slate-700 hover:bg-slate-50">
-                                        <div className="p-4 font-mono font-bold text-blue-600">{s.id}</div>
-                                        <div className="p-4">{s.date}</div>
-                                        <div className="p-4 truncate">{resolveUserName(s.supervisorName, s.createdBy)}</div>
-                                        <div className="p-4 truncate">{resolveUserName(s.loadingSvName, s.completedBy) || '-'}</div>
-                                        <div className="p-4 truncate text-slate-500">{s.createdBy || '-'}</div>
-                                        <div className="p-4 text-xs text-slate-500 font-mono">{s.createdAt ? new Date(s.createdAt).toLocaleString() : '-'}</div>
-                                        <div className="p-4 truncate text-emerald-600">{s.stagingApprovedBy || '-'}</div>
-                                        <div className="p-4 text-xs text-slate-500 font-mono">{s.stagingApprovedAt ? new Date(s.stagingApprovedAt).toLocaleString() : '-'}</div>
-                                        <div className="p-4 truncate text-orange-600">{s.loadingApprovedBy || '-'}</div>
-                                        <div className="p-4">
-                                            {/* Enhanced Station Pipeline Visualization */}
-                                            <div className="flex flex-col gap-1 w-[160px]">
-                                                <div className="flex items-center justify-between relative">
-                                                    {/* Connecting Line */}
-                                                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -z-10"></div>
-                                                    <div className={`absolute top-1/2 left-0 h-0.5 bg-blue-500 -z-10 transition-all duration-500`} style={{ width: s.status === 'COMPLETED' ? '100%' : s.status === 'LOADING_VERIFICATION_PENDING' ? '75%' : s.status === 'LOCKED' ? '50%' : s.status === 'STAGING_VERIFICATION_PENDING' ? '25%' : '0%' }}></div>
+                                    dbViewMode === 'details' ? (
+                                        <div key={s.id} className="grid grid-cols-[100px_100px_120px_120px_120px_180px_180px_180px_180px_100px_80px] items-center text-sm text-slate-700 hover:bg-slate-50">
+                                            <div className="p-4 font-mono font-bold text-blue-600">{s.id}</div>
+                                            <div className="p-4">{s.date}</div>
+                                            <div className="p-4 truncate">{resolveUserName(s.supervisorName, s.createdBy)}</div>
+                                            <div className="p-4 truncate">{resolveUserName(s.loadingSvName, s.completedBy) || '-'}</div>
+                                            <div className="p-4 truncate text-slate-500">{s.createdBy || '-'}</div>
+                                            <div className="p-4 text-xs text-slate-500 font-mono">{s.createdAt ? new Date(s.createdAt).toLocaleString() : '-'}</div>
+                                            <div className="p-4 truncate text-emerald-600">{s.stagingApprovedBy || '-'}</div>
+                                            <div className="p-4 text-xs text-slate-500 font-mono">{s.stagingApprovedAt ? new Date(s.stagingApprovedAt).toLocaleString() : '-'}</div>
+                                            <div className="p-4 truncate text-orange-600">{s.loadingApprovedBy || '-'}</div>
+                                            <div className="p-4">
+                                                {/* Enhanced Station Pipeline Visualization */}
+                                                <div className="flex flex-col gap-1 w-[160px]">
+                                                    <div className="flex items-center justify-between relative">
+                                                        {/* Connecting Line */}
+                                                        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -z-10"></div>
+                                                        <div className={`absolute top-1/2 left-0 h-0.5 bg-blue-500 -z-10 transition-all duration-500`} style={{ width: s.status === 'COMPLETED' ? '100%' : s.status === 'LOADING_VERIFICATION_PENDING' ? '75%' : s.status === 'LOCKED' ? '50%' : s.status === 'STAGING_VERIFICATION_PENDING' ? '25%' : '0%' }}></div>
 
-                                                    {/* Station 1: Draft/Start */}
-                                                    <div className={`relative group`}>
-                                                        <div className={`w-3 h-3 rounded-full border-2 ${s.status !== 'DRAFT' ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-400'}`}></div>
-                                                        <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Start</span>
-                                                    </div>
-
-                                                    {/* Station 2: Staging Check (Shift Lead) */}
-                                                    <div className={`relative group`}>
-                                                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${['LOCKED', 'LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-green-500 border-green-500 text-white' : s.status === 'STAGING_VERIFICATION_PENDING' ? 'bg-white border-blue-500 text-blue-500 animate-pulse' : 'bg-white border-slate-300 text-slate-300'}`}>
-                                                            {['LOCKED', 'LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? <CheckCircle size={10} /> : <ClipboardList size={8} strokeWidth={3} />}
+                                                        {/* Station 1: Draft/Start */}
+                                                        <div className={`relative group`}>
+                                                            <div className={`w-3 h-3 rounded-full border-2 ${s.status !== 'DRAFT' ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-400'}`}></div>
+                                                            <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Start</span>
                                                         </div>
-                                                        <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Check</span>
-                                                    </div>
 
-                                                    {/* Station 3: Ready/Load (Locked) */}
-                                                    <div className={`relative group`}>
-                                                        {/* "Present to save data" means active. "Locked" status = Ready to load. */}
-                                                        <div className={`w-3 h-3 rounded text-[8px] flex items-center justify-center border ${['LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-orange-500 border-orange-500 text-white' : s.status === 'LOCKED' ? 'bg-orange-600 border-orange-600 text-white shadow-sm' : 'bg-white border-slate-300 text-slate-300'}`}>
-                                                            <Plus size={8} strokeWidth={4} />
+                                                        {/* Station 2: Staging Check (Shift Lead) */}
+                                                        <div className={`relative group`}>
+                                                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${['LOCKED', 'LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-green-500 border-green-500 text-white' : s.status === 'STAGING_VERIFICATION_PENDING' ? 'bg-white border-blue-500 text-blue-500 animate-pulse' : 'bg-white border-slate-300 text-slate-300'}`}>
+                                                                {['LOCKED', 'LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? <CheckCircle size={10} /> : <ClipboardList size={8} strokeWidth={3} />}
+                                                            </div>
+                                                            <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Check</span>
                                                         </div>
-                                                        <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Ready</span>
-                                                    </div>
 
-                                                    {/* Station 4: Loading Check (Shift Lead) */}
-                                                    <div className={`relative group`}>
-                                                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${s.status === 'COMPLETED' ? 'bg-green-600 border-green-600 text-white' : s.status === 'LOADING_VERIFICATION_PENDING' ? 'bg-white border-orange-500 text-orange-500 animate-pulse' : 'bg-white border-slate-300 text-slate-300'}`}>
-                                                            {s.status === 'COMPLETED' ? <CheckCircle size={10} /> : <Truck size={8} strokeWidth={3} />}
+                                                        {/* Station 3: Ready/Load (Locked) */}
+                                                        <div className={`relative group`}>
+                                                            {/* "Present to save data" means active. "Locked" status = Ready to load. */}
+                                                            <div className={`w-3 h-3 rounded text-[8px] flex items-center justify-center border ${['LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-orange-500 border-orange-500 text-white' : s.status === 'LOCKED' ? 'bg-orange-600 border-orange-600 text-white shadow-sm' : 'bg-white border-slate-300 text-slate-300'}`}>
+                                                                <Plus size={8} strokeWidth={4} />
+                                                            </div>
+                                                            <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Ready</span>
                                                         </div>
-                                                        <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Verify</span>
-                                                    </div>
 
-                                                    {/* Station 5: End */}
-                                                    <div className={`relative group`}>
-                                                        <div className={`w-3 h-3 rounded-full border-2 ${s.status === 'COMPLETED' ? 'bg-green-600 border-green-600' : 'bg-white border-slate-300'}`}></div>
-                                                        <span className="absolute -bottom-4 right-0 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Done</span>
+                                                        {/* Station 4: Loading Check (Shift Lead) */}
+                                                        <div className={`relative group`}>
+                                                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${s.status === 'COMPLETED' ? 'bg-green-600 border-green-600 text-white' : s.status === 'LOADING_VERIFICATION_PENDING' ? 'bg-white border-orange-500 text-orange-500 animate-pulse' : 'bg-white border-slate-300 text-slate-300'}`}>
+                                                                {s.status === 'COMPLETED' ? <CheckCircle size={10} /> : <Truck size={8} strokeWidth={3} />}
+                                                            </div>
+                                                            <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Verify</span>
+                                                        </div>
+
+                                                        {/* Station 5: End */}
+                                                        <div className={`relative group`}>
+                                                            <div className={`w-3 h-3 rounded-full border-2 ${s.status === 'COMPLETED' ? 'bg-green-600 border-green-600' : 'bg-white border-slate-300'}`}></div>
+                                                            <span className="absolute -bottom-4 right-0 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Done</span>
+                                                        </div>
                                                     </div>
+                                                    <div className="h-2"></div>
                                                 </div>
-                                                <div className="h-2"></div>
+                                                <span className="text-[10px] font-bold text-slate-500 mt-1 block uppercase">{s.status.replace(/_/g, ' ').replace('VERIFICATION PENDING', 'VERIFY')}</span>
                                             </div>
-                                            <span className="text-[10px] font-bold text-slate-500 mt-1 block uppercase">{s.status.replace(/_/g, ' ').replace('VERIFICATION PENDING', 'VERIFY')}</span>
+                                            <div className="p-4 flex justify-center gap-2">
+                                                <button onClick={() => onViewSheet(s)} className="text-blue-600 hover:bg-blue-50 p-1 rounded"><Eye size={16} /></button>
+                                                {currentUser?.role === 'ADMIN' && <button onClick={(e) => handleDelete(e, s.id)} className="text-red-600 hover:bg-red-50 p-1 rounded"><Trash2 size={16} /></button>}
+                                            </div>
                                         </div>
-                                        <div className="p-4 flex justify-center gap-2">
-                                            <button onClick={() => onViewSheet(s)} className="text-blue-600 hover:bg-blue-50 p-1 rounded"><Eye size={16} /></button>
-                                            {currentUser?.role === 'ADMIN' && <button onClick={(e) => handleDelete(e, s.id)} className="text-red-600 hover:bg-red-50 p-1 rounded"><Trash2 size={16} /></button>}
+                                    ) : (
+                                        // DURATION VIEW ROW
+                                        <div key={s.id} className="grid grid-cols-[100px_120px_180px_180px_180px_180px_180px_100px_80px] items-center text-sm text-slate-700 hover:bg-slate-50">
+                                            <div className="p-4 font-mono font-bold text-blue-600">{s.id}</div>
+                                            <div className="p-4">{s.date}</div>
+                                            <div className="p-4 text-xs font-mono">{s.createdAt ? new Date(s.createdAt).toLocaleString() : '-'}</div>
+                                            <div className="p-4 text-xs font-mono text-emerald-700">{s.stagingApprovedAt ? new Date(s.stagingApprovedAt).toLocaleString() : '-'}</div>
+                                            <div className="p-4 text-xs font-mono text-orange-700">{s.loadingApprovedAt ? new Date(s.loadingApprovedAt).toLocaleString() : '-'}</div>
+                                            <div className="p-4 text-xs font-mono font-bold">{s.completedAt ? new Date(s.completedAt).toLocaleString() : '-'}</div>
+                                            <div className="p-4 text-xs font-mono bg-slate-50 text-slate-500">
+                                                {s.createdAt && s.completedAt ?
+                                                    (() => {
+                                                        const diff = new Date(s.completedAt).getTime() - new Date(s.createdAt).getTime();
+                                                        const hrs = Math.floor(diff / 3600000);
+                                                        const mins = Math.floor((diff % 3600000) / 60000);
+                                                        return `${hrs}h ${mins}m`;
+                                                    })()
+                                                    : '-'
+                                                }
+                                            </div>
+                                            <div className="p-4"><span className="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold">{s.status}</span></div>
+                                            <div className="p-4 flex justify-center gap-2">
+                                                <button onClick={() => onViewSheet(s)} className="text-blue-600 hover:bg-blue-50 p-1 rounded"><Eye size={16} /></button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )
                                 )) : <div className="p-12 text-center text-slate-400 italic">No records found.</div>}
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        );
-    }
-
-    // --- VIEW 5: APPROVALS PANEL ---
-    if (viewMode === 'approvals') {
-        const pendingStaging = sheets.filter(s => s.status === SheetStatus.STAGING_VERIFICATION_PENDING);
-        const pendingLoading = sheets.filter(s => s.status === SheetStatus.LOADING_VERIFICATION_PENDING);
-
-        return (
-            <div className="space-y-8 pb-20">
-                <div className="flex items-center gap-4 bg-white p-6 rounded-xl border border-purple-100 shadow-sm">
-                    <div className="p-3 bg-purple-100 text-purple-600 rounded-lg"><ShieldCheck size={24} /></div>
-                    <div><h2 className="text-2xl font-bold text-slate-800">Approvals Pending</h2><p className="text-slate-500">Review and verify operational sheets.</p></div>
-                </div>
-
-                <div>
-                    <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2"><Clipboard className="text-blue-500" /> Staging Sheets ({pendingStaging.length})</h3>
-                    {pendingStaging.length > 0 ? (
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            {pendingStaging.map(sheet => (
-                                <div key={sheet.id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
-                                    <div className="flex justify-between items-start mb-3"><span className="font-mono text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">{sheet.id}</span><span className="text-xs font-semibold text-slate-500">{sheet.date}</span></div>
-                                    <p className="text-sm font-medium text-slate-700 mb-4">Supervisor: <span className="font-bold">{sheet.supervisorName}</span></p>
-                                    <button onClick={() => onViewSheet(sheet)} className="w-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2">Review Sheet <ChevronRight size={16} /></button>
-                                </div>
-                            ))}
-                        </div>
-                    ) : <div className="p-8 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-center text-slate-400">No staging sheets pending approval.</div>}
-                </div>
-
-                <div>
-                    <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2"><Truck className="text-orange-500" /> Loading Sheets ({pendingLoading.length})</h3>
-                    {pendingLoading.length > 0 ? (
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            {pendingLoading.map(sheet => (
-                                <div key={sheet.id} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
-                                    <div className="flex justify-between items-start mb-3"><span className="font-mono text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">{sheet.id}</span><span className="text-xs font-semibold text-slate-500">{sheet.date}</span></div>
-                                    <p className="text-sm font-medium text-slate-700 mb-4">Loading Sv: <span className="font-bold">{sheet.loadingSvName}</span></p>
-                                    <button onClick={() => onViewSheet(sheet)} className="w-full bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2">Review Sheet <ChevronRight size={16} /></button>
-                                </div>
-                            ))}
-                        </div>
-                    ) : <div className="p-8 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-center text-slate-400">No loading sheets pending approval.</div>}
                 </div>
             </div>
         );
