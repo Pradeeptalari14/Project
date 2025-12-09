@@ -341,6 +341,7 @@ export const LoadingSheet: React.FC<Props> = ({ sheet, onClose, initialPreview =
                     status: SheetStatus.COMPLETED,
                     loadingApprovedBy: currentUser?.username,
                     loadingApprovedAt: new Date().toISOString(),
+                    loadingEndTime: currentSheet.loadingEndTime || new Date().toLocaleTimeString('en-US', { hour12: false }),
                     slSign: currentUser?.fullName,
                     completedBy: currentUser?.username,
                     completedAt: new Date().toISOString()
