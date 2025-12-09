@@ -51,16 +51,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
         password: '',
         role: Role.STAGING_SUPERVISOR
     });
-
     // Reset Password State
     const [isResetPasswordOpen, setResetPasswordOpen] = useState(false);
     const [resetData, setResetData] = useState<{ id: string, username: string, newPass: string } | null>(null);
 
     // --- WIDGET SYSTEM STATE ---
+    // Persist preferences to LocalStorage keyed by username
     const [userWidgets, setUserWidgets] = useState<string[]>(() => {
         if (!currentUser?.username) return ['staff-performance', 'sla-monitor', 'incident-list'];
         try {
-            const saved = localStorage.getItem(`unicharm_widgets_${currentUser.username}`);
+            const saved = localStorage.getItem(`unicharm_widgets_restored_v2_${currentUser.username}`);
+            // Auto-migrate: If saved config exists but doesn't have incident-list, add it (for this update)
             const loaded = saved ? JSON.parse(saved) : ['staff-performance', 'sla-monitor', 'incident-list'];
             if (!loaded.includes('incident-list')) loaded.push('incident-list');
             return loaded;
@@ -92,7 +93,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
     // Save to LocalStorage whenever widgets change
     React.useEffect(() => {
         if (currentUser?.username) {
-            localStorage.setItem(`unicharm_widgets_${currentUser.username}`, JSON.stringify(userWidgets));
+            localStorage.setItem(`unicharm_widgets_restored_v2_${currentUser.username}`, JSON.stringify(userWidgets));
         }
     }, [userWidgets, currentUser]);
 
