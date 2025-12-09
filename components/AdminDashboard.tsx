@@ -239,6 +239,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
             total, completed, draft: stagingDrafts, locked: loadingLocked,
             createdToday, completedToday,
             staging: { total: stagingTotal, drafts: stagingDrafts, pending: stagingPending, locked: stagingLocked, staff: stagingStaff },
+            stagingCompleted: stagingLocked + pendingLoading + completed, // NEW: Custom metric for Staging SV
             loading: { total: loadingTotal, locked: loadingLocked, pending: loadingPending, completed: loadingCompleted, staff: loadingStaff },
             approvals: { staging: stagingPending, loading: pendingLoading, staff: shiftLeadStaff },
             pendingStaging, pendingLoading, shiftLeads: shiftLeadStaff, stagingStaff, loadingStaff
@@ -272,84 +273,103 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                 >
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><CheckCircle size={120} className="text-green-500" /></div>
                     <div className="flex items-center justify-between relative z-10">
-                        <div><h3 className="text-lg font-bold text-slate-500 uppercase tracking-wide mb-1">Total Sheets Completed</h3><p className="text-xs text-slate-400">Click to filter view</p></div>
-                        <div className="text-5xl font-extrabold text-green-600">{stats.completed}</div>
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-500 uppercase tracking-wide mb-1">
+                                {currentUser?.role === Role.STAGING_SUPERVISOR ? 'Staging Sheets Completed' : 'Total Sheets Completed'}
+                            </h3>
+                            <p className="text-xs text-slate-400">Click to filter view</p>
+                        </div>
+                        <div className="text-5xl font-extrabold text-green-600">
+                            {currentUser?.role === Role.STAGING_SUPERVISOR ? stats.stagingCompleted : stats.completed}
+                        </div>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Staging */}
-                    <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
-                        <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
-                            <div className="p-2 bg-blue-100 rounded-lg text-blue-600"><Clipboard size={20} /></div>
-                            <div><h3 className="font-bold text-slate-700">Staging Overview</h3><div className="text-xs text-slate-400">{stats.staging.staff} Staff</div></div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2"> {/* Changed to 3 cols for Locked */}
-                            <div onClick={() => navigateToDatabase('DRAFT', 'STAGING')} className="p-3 bg-blue-50/50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
-                                <span className="text-[10px] text-blue-500 uppercase font-bold block mb-1">Drafts</span>
-                                <span className="text-xl font-bold text-blue-700">{stats.staging.drafts}</span>
+                    {showStaging && (
+                        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
+                                <div className="p-2 bg-blue-100 rounded-lg text-blue-600"><Clipboard size={20} /></div>
+                                <div><h3 className="font-bold text-slate-700">Staging Overview</h3><div className="text-xs text-slate-400">{stats.staging.staff} Staff</div></div>
                             </div>
-                            <div onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING', 'STAGING')} className="p-3 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors">
-                                <span className="text-[10px] text-yellow-600 uppercase font-bold block mb-1">Pending</span>
-                                <span className="text-xl font-bold text-yellow-700">{stats.staging.pending}</span>
-                            </div>
-                            <div onClick={() => navigateToDatabase('LOCKED', 'STAGING')} className="p-3 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors">
-                                <span className="text-[10px] text-orange-600 uppercase font-bold block mb-1">Locked</span>
-                                <span className="text-xl font-bold text-orange-700">{stats.staging.locked}</span>
-                            </div>
-                        </div>
-                    </div>
-                    {/* Loading */}
-                    <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
-                        <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
-                            <div className="p-2 bg-orange-100 rounded-lg text-orange-600"><Truck size={20} /></div>
-                            <div><h3 className="font-bold text-slate-700">Loading Overview</h3><div className="text-xs text-slate-400">{stats.loading.staff} Staff</div></div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div onClick={() => navigateToDatabase('LOCKED', 'LOADING')} className="p-2 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors flex items-center justify-between group">
-                                <div>
-                                    <span className="text-[10px] text-orange-600 uppercase font-bold block mb-1">Ready to Load</span>
-                                    <span className="text-lg font-bold text-orange-700">{stats.loading.locked}</span>
+                            <div className="grid grid-cols-3 gap-2"> {/* Changed to 3 cols for Locked */}
+                                <div onClick={() => navigateToDatabase('DRAFT', 'STAGING')} className="p-3 bg-blue-50/50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                                    <span className="text-[10px] text-blue-500 uppercase font-bold block mb-1">Drafts</span>
+                                    <span className="text-xl font-bold text-blue-700">{stats.staging.drafts}</span>
                                 </div>
-                                <Lock className="text-orange-300 group-hover:text-orange-500 transition-colors" size={24} />
-                            </div>
-                            <div onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING', 'LOADING')} className="p-2 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors flex items-center justify-between group">
-                                <div>
+                                <div onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING', 'STAGING')} className="p-3 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors">
                                     <span className="text-[10px] text-yellow-600 uppercase font-bold block mb-1">Pending</span>
-                                    <span className="text-lg font-bold text-yellow-700">{stats.loading.pending}</span>
+                                    <span className="text-xl font-bold text-yellow-700">{stats.staging.pending}</span>
                                 </div>
-                                <Clock className="text-yellow-300 group-hover:text-yellow-500 transition-colors" size={24} />
+                                <div onClick={() => navigateToDatabase('LOCKED', 'STAGING')} className="p-3 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors">
+                                    <span className="text-[10px] text-orange-600 uppercase font-bold block mb-1">Locked</span>
+                                    <span className="text-xl font-bold text-orange-700">{stats.staging.locked}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
+                    {/* Loading */}
+                    {showLoading && (
+                        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
+                                <div className="p-2 bg-orange-100 rounded-lg text-orange-600"><Truck size={20} /></div>
+                                <div><h3 className="font-bold text-slate-700">Loading Overview</h3><div className="text-xs text-slate-400">{stats.loading.staff} Staff</div></div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div onClick={() => navigateToDatabase('LOCKED', 'LOADING')} className="p-2 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors flex items-center justify-between group">
+                                    <div>
+                                        <span className="text-[10px] text-orange-600 uppercase font-bold block mb-1">Ready to Load</span>
+                                        <span className="text-lg font-bold text-orange-700">{stats.loading.locked}</span>
+                                    </div>
+                                    <Lock className="text-orange-300 group-hover:text-orange-500 transition-colors" size={24} />
+                                </div>
+                                <div onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING', 'LOADING')} className="p-2 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors flex items-center justify-between group">
+                                    <div>
+                                        <span className="text-[10px] text-yellow-600 uppercase font-bold block mb-1">Pending</span>
+                                        <span className="text-lg font-bold text-yellow-700">{stats.loading.pending}</span>
+                                    </div>
+                                    <Clock className="text-yellow-300 group-hover:text-yellow-500 transition-colors" size={24} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     {/* Approvals */}
-                    <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
-                        <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
-                            <div className="p-2 bg-purple-100 rounded-lg text-purple-600"><CheckCircle2 size={20} /></div>
-                            <div><h3 className="font-bold text-slate-700">Shift Lead</h3><div className="text-xs text-slate-400">{stats.approvals.staff} Leads</div></div>
-                        </div>
-                        <div className="space-y-3">
-                            <div onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING', 'STAGING')} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
-                                <span className="text-sm font-bold text-slate-700">Staging</span>
-                                <span className="text-sm text-slate-500">(Pending)</span>
-                                <span className="text-lg font-bold text-blue-700">{stats.approvals.staging}</span>
+                    {showApprovals && (
+                        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
+                                <div className="p-2 bg-purple-100 rounded-lg text-purple-600"><CheckCircle2 size={20} /></div>
+                                <div><h3 className="font-bold text-slate-700">Shift Lead</h3><div className="text-xs text-slate-400">{stats.approvals.staff} Leads</div></div>
                             </div>
-                            <div onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING', 'LOADING')} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors">
-                                <span className="text-sm font-bold text-slate-700">Loading</span>
-                                <span className="text-sm text-slate-500">(Pending)</span>
-                                <span className="text-lg font-bold text-orange-700">{stats.approvals.loading}</span>
+                            <div className="space-y-3">
+                                <div onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING', 'STAGING')} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                                    <span className="text-sm font-bold text-slate-700">Staging</span>
+                                    <span className="text-sm text-slate-500">(Pending)</span>
+                                    <span className="text-lg font-bold text-blue-700">{stats.approvals.staging}</span>
+                                </div>
+                                <div onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING', 'LOADING')} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors">
+                                    <span className="text-sm font-bold text-slate-700">Loading</span>
+                                    <span className="text-sm text-slate-500">(Pending)</span>
+                                    <span className="text-lg font-bold text-orange-700">{stats.approvals.loading}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* ROW 3 & 4: Widgets */}
+                {/* ROW 3 & 4: Widgets */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {userWidgets.includes('sla-monitor') && getWidgetDefinition('sla-monitor') && (
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">SLA Compliance</h3>{React.createElement(getWidgetDefinition('sla-monitor')!.component)}</div>
-                    )}
-                    {userWidgets.includes('incident-list') && getWidgetDefinition('incident-list') && (
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">Incidents</h3>{React.createElement(getWidgetDefinition('incident-list')!.component)}</div>
+                    {/* Hide SLA and Incidents for Supervisors */}
+                    {showApprovals && (
+                        <>
+                            {userWidgets.includes('sla-monitor') && getWidgetDefinition('sla-monitor') && (
+                                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">SLA Compliance</h3>{React.createElement(getWidgetDefinition('sla-monitor')!.component)}</div>
+                            )}
+                            {userWidgets.includes('incident-list') && getWidgetDefinition('incident-list') && (
+                                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">Incidents</h3>{React.createElement(getWidgetDefinition('incident-list')!.component)}</div>
+                            )}
+                        </>
                     )}
                 </div>
                 {
