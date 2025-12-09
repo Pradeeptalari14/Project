@@ -816,26 +816,47 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                         <div className="p-4 text-xs text-slate-500 font-mono">{s.stagingApprovedAt ? new Date(s.stagingApprovedAt).toLocaleString() : '-'}</div>
                                         <div className="p-4 truncate text-orange-600">{s.loadingApprovedBy || '-'}</div>
                                         <div className="p-4">
-                                            {/* Pipeline Visualization */}
-                                            <div className="flex items-center gap-1">
-                                                {/* Draft Status */}
-                                                <div className={`w-2 h-2 rounded-full ${s.status === 'DRAFT' ? 'bg-slate-500 ring-2 ring-slate-200' : (s.status !== 'DRAFT' ? 'bg-slate-300' : 'bg-slate-200')}`} title="Draft"></div>
-                                                <div className={`w-4 h-0.5 ${s.status !== 'DRAFT' ? 'bg-slate-300' : 'bg-slate-200'}`}></div>
+                                            {/* Enhanced Station Pipeline Visualization */}
+                                            <div className="flex flex-col gap-1 w-[160px]">
+                                                <div className="flex items-center justify-between relative">
+                                                    {/* Connecting Line */}
+                                                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -z-10"></div>
+                                                    <div className={`absolute top-1/2 left-0 h-0.5 bg-blue-500 -z-10 transition-all duration-500`} style={{ width: s.status === 'COMPLETED' ? '100%' : s.status === 'LOADING_VERIFICATION_PENDING' ? '75%' : s.status === 'LOCKED' ? '50%' : s.status === 'STAGING_VERIFICATION_PENDING' ? '25%' : '0%' }}></div>
 
-                                                {/* Staging Verification */}
-                                                <div className={`w-2 h-2 rounded-full ${s.status === 'STAGING_VERIFICATION_PENDING' ? 'bg-blue-500 ring-2 ring-blue-200 animate-pulse' : (['LOCKED', 'LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-blue-400' : 'bg-slate-200')}`} title="Staging Verification"></div>
-                                                <div className={`w-4 h-0.5 ${['LOCKED', 'LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-blue-300' : 'bg-slate-200'}`}></div>
+                                                    {/* Station 1: Draft/Start */}
+                                                    <div className={`relative group`}>
+                                                        <div className={`w-3 h-3 rounded-full border-2 ${s.status !== 'DRAFT' ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-400'}`}></div>
+                                                        <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Start</span>
+                                                    </div>
 
-                                                {/* Locked (Ready to Load) */}
-                                                <div className={`w-2 h-2 rounded-full ${s.status === 'LOCKED' ? 'bg-orange-500 ring-2 ring-orange-200' : (['LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-orange-400' : 'bg-slate-200')}`} title="Ready to Load"></div>
-                                                <div className={`w-4 h-0.5 ${['LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-orange-300' : 'bg-slate-200'}`}></div>
+                                                    {/* Station 2: Staging Check (Shift Lead) */}
+                                                    <div className={`relative group`}>
+                                                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${['LOCKED', 'LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-blue-500 border-blue-500 text-white' : s.status === 'STAGING_VERIFICATION_PENDING' ? 'bg-white border-blue-500 text-blue-500 animate-pulse' : 'bg-white border-slate-300 text-slate-300'}`}>
+                                                            <Clipboard size={8} strokeWidth={3} />
+                                                        </div>
+                                                        <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Check</span>
+                                                    </div>
 
-                                                {/* Loading Verification */}
-                                                <div className={`w-2 h-2 rounded-full ${s.status === 'LOADING_VERIFICATION_PENDING' ? 'bg-purple-500 ring-2 ring-purple-200 animate-pulse' : (s.status === 'COMPLETED' ? 'bg-purple-400' : 'bg-slate-200')}`} title="Loading Verification"></div>
-                                                <div className={`w-4 h-0.5 ${s.status === 'COMPLETED' ? 'bg-purple-300' : 'bg-slate-200'}`}></div>
+                                                    {/* Station 3: Ready/Load */}
+                                                    <div className={`relative group`}>
+                                                        <div className={`w-3 h-3 rounded-full border-2 ${['LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-orange-500 border-orange-500' : s.status === 'LOCKED' ? 'bg-white border-orange-500' : 'bg-white border-slate-300'}`}></div>
+                                                    </div>
 
-                                                {/* Completed */}
-                                                <div className={`w-2 h-2 rounded-full ${s.status === 'COMPLETED' ? 'bg-green-500 ring-2 ring-green-200' : 'bg-slate-200'}`} title="Completed"></div>
+                                                    {/* Station 4: Loading Check (Shift Lead) */}
+                                                    <div className={`relative group`}>
+                                                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${s.status === 'COMPLETED' ? 'bg-green-500 border-green-500 text-white' : s.status === 'LOADING_VERIFICATION_PENDING' ? 'bg-white border-orange-500 text-orange-500 animate-pulse' : 'bg-white border-slate-300 text-slate-300'}`}>
+                                                            <Truck size={8} strokeWidth={3} />
+                                                        </div>
+                                                        <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Check</span>
+                                                    </div>
+
+                                                    {/* Station 5: End */}
+                                                    <div className={`relative group`}>
+                                                        <div className={`w-3 h-3 rounded-full border-2 ${s.status === 'COMPLETED' ? 'bg-green-600 border-green-600' : 'bg-white border-slate-300'}`}></div>
+                                                        <span className="absolute -bottom-4 right-0 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Done</span>
+                                                    </div>
+                                                </div>
+                                                <div className="h-2"></div>
                                             </div>
                                             <span className="text-[10px] font-bold text-slate-500 mt-1 block uppercase">{s.status.replace(/_/g, ' ').replace('VERIFICATION PENDING', 'VERIFY')}</span>
                                         </div>
