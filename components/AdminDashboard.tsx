@@ -132,6 +132,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
             newUrl.searchParams.set('view', 'staging-db');
         } else if (workflow === 'LOADING') {
             newUrl.searchParams.set('view', 'loading-db');
+        } else if (workflow === 'APPROVALS') {
+            newUrl.searchParams.set('view', 'approvals');
         } else {
             newUrl.searchParams.set('view', 'database');
         }
@@ -627,42 +629,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                         </div>
                     </div>
 
-                    {/* Workflow Tabs - Hide if Locked */}
-                    {!isLockedWorkflow && (
-                        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-200 mb-4">
-                            <button
-                                onClick={() => { setDbWorkflow('ALL'); navigateToDatabase('ALL'); }}
-                                className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${dbWorkflow === 'ALL' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
-                            >
-                                All Sheets
-                            </button>
-                            {/* PENDING Filter for ALL */}
-                            <button
-                                onClick={() => navigateToDatabase('PENDING', 'ALL')}
-                                className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${statusFilter === 'PENDING' ? 'bg-white text-yellow-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                            >
-                                Pending (All)
-                            </button>
-                            <button
-                                onClick={() => { setDbWorkflow('STAGING'); navigateToDatabase('ALL', 'STAGING'); }}
-                                className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${dbWorkflow === 'STAGING' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                            >
-                                Staging Workflow
-                            </button>
-                            <button
-                                onClick={() => { setDbWorkflow('LOADING'); navigateToDatabase('ALL', 'LOADING'); }}
-                                className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${dbWorkflow === 'LOADING' ? 'bg-white text-orange-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                            >
-                                Loading Workflow
-                            </button>
-                            <button
-                                onClick={() => { setDbWorkflow('APPROVALS'); navigateToDatabase('ALL', 'APPROVALS'); }}
-                                className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${dbWorkflow === 'APPROVALS' ? 'bg-white text-purple-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                            >
-                                Approvals
-                            </button>
-                        </div>
-                    )}
+
 
                     <div className="flex flex-col gap-4 mb-6">
                         {/* Workflow Context Tabs - Hidden in Shift Lead View */}
@@ -720,8 +687,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
 
                             {dbWorkflow === 'APPROVALS' && (
                                 <div className="flex items-center gap-2 overflow-x-auto">
-                                    <button onClick={() => onNavigate && onNavigate('staging', 'STAGING_VERIFICATION_PENDING')} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'STAGING_VERIFICATION_PENDING' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300'}`}>Staging Approval</button>
-                                    <button onClick={() => onNavigate && onNavigate('loading', 'LOADING_VERIFICATION_PENDING')} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOADING_VERIFICATION_PENDING' ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-slate-500 border-slate-200 hover:border-orange-300'}`}>Loading Approval</button>
+                                    <button onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING', 'APPROVALS')} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'STAGING_VERIFICATION_PENDING' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300'}`}>Staging Approval</button>
+                                    <button onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING', 'APPROVALS')} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOADING_VERIFICATION_PENDING' ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-slate-500 border-slate-200 hover:border-orange-300'}`}>Loading Approval</button>
                                 </div>
                             )}
                         </div>

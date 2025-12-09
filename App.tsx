@@ -62,6 +62,7 @@ const App = () => {
         const view = params.get('view');
         if (view === 'staging-db') return 'staging-db';
         if (view === 'loading-db') return 'loading-db';
+        if (view === 'approvals') return 'approvals';
         return 'dashboard';
     });
 
