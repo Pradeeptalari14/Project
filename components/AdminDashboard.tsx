@@ -79,6 +79,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
     });
     // NEW: Database View Mode (Standard vs Duration)
     const [dbViewMode, setDbViewMode] = useState<'details' | 'duration'>('details');
+    // NEW: Database Workflow Context
+    const [dbWorkflow, setDbWorkflow] = useState<'ALL' | 'STAGING' | 'LOADING'>('ALL');
     const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
 
     // Sort State
@@ -371,6 +373,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                         <h2 className="text-xl font-bold flex gap-2"><UserIcon className="text-blue-600" /> User Administration</h2>
                         {currentUser?.role === Role.ADMIN && <button onClick={() => setCreateUserOpen(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"><UserPlus size={16} /> Add User</button>}
                     </div>
+
+                    {/* User Role Filters */}
+                    <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
+                        <button
+                            onClick={() => setFilterRole('ALL')}
+                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${filterRole === 'ALL' ? 'bg-slate-800 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'}`}
+                        >
+                            All Users
+                        </button>
+                        <button
+                            onClick={() => setFilterRole(Role.STAGING_SUPERVISOR)}
+                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${filterRole === Role.STAGING_SUPERVISOR ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'}`}
+                        >
+                            Staging
+                        </button>
+                        <button
+                            onClick={() => setFilterRole(Role.LOADING_SUPERVISOR)}
+                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${filterRole === Role.LOADING_SUPERVISOR ? 'bg-orange-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'}`}
+                        >
+                            Loading
+                        </button>
+                        <button
+                            onClick={() => setFilterRole(Role.SHIFT_LEAD)}
+                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${filterRole === Role.SHIFT_LEAD ? 'bg-purple-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'}`}
+                        >
+                            Shift Leads
+                        </button>
+                    </div>
                     <div className="overflow-hidden rounded-lg border border-slate-200">
                         {filteredUsers.map((user) => (
                             <div key={user.id} className="grid grid-cols-[1.5fr_1.5fr_1fr_1.5fr_1fr_120px] p-4 border-b hover:bg-slate-50 items-center text-sm">
@@ -398,6 +428,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 <input className="w-full border p-2 rounded" placeholder="Username" value={newUser.username} onChange={e => setNewUser({ ...newUser, username: e.target.value })} required />
                                 <input className="w-full border p-2 rounded" placeholder="Full Name" value={newUser.fullName} onChange={e => setNewUser({ ...newUser, fullName: e.target.value })} required />
                                 <input className="w-full border p-2 rounded" placeholder="Emp Code" value={newUser.empCode} onChange={e => setNewUser({ ...newUser, empCode: e.target.value })} required />
+                                <input className="w-full border p-2 rounded" placeholder="Email" type="email" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} required />
                                 <input className="w-full border p-2 rounded" placeholder="Password" type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} required />
                                 <label className="block text-sm font-bold text-slate-700">Role</label>
                                 <select className="w-full border p-2 rounded" value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value as Role })}>
@@ -569,6 +600,49 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"><X size={14} /></button>}
                             </div>
                         </div>
+                    </div>
+
+                    <div className="flex flex-col gap-4 mb-6">
+                        {/* Workflow Context Tabs */}
+                        <div className="flex p-1 bg-slate-100 rounded-lg w-fit">
+                            <button
+                                onClick={() => { setDbWorkflow('ALL'); navigateToDatabase('ALL'); }}
+                                className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${dbWorkflow === 'ALL' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                All Sheets
+                            </button>
+                            <button
+                                onClick={() => { setDbWorkflow('STAGING'); navigateToDatabase('ALL'); }}
+                                className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${dbWorkflow === 'STAGING' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Staging Workflow
+                            </button>
+                            <button
+                                onClick={() => { setDbWorkflow('LOADING'); navigateToDatabase('ALL'); }}
+                                className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${dbWorkflow === 'LOADING' ? 'bg-white text-orange-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Loading Workflow
+                            </button>
+                        </div>
+
+                        {/* Status Filters based on Workflow */}
+                        {dbWorkflow === 'STAGING' && (
+                            <div className="flex items-center gap-2 overflow-x-auto">
+                                <button onClick={() => navigateToDatabase('ALL')} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${!statusFilter || statusFilter === 'ALL' ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-white text-slate-500 border-slate-200'}`}>All</button>
+                                <button onClick={() => navigateToDatabase('DRAFT')} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'DRAFT' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300'}`}>Drafts</button>
+                                <button onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING')} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'STAGING_VERIFICATION_PENDING' ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-white text-slate-500 border-slate-200 hover:border-yellow-300'}`}>Pending Verification</button>
+                                <button onClick={() => navigateToDatabase('LOCKED')} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOCKED' ? 'bg-green-600 text-white border-green-600' : 'bg-white text-slate-500 border-slate-200 hover:border-green-300'}`}>Locked (Completed)</button>
+                            </div>
+                        )}
+
+                        {dbWorkflow === 'LOADING' && (
+                            <div className="flex items-center gap-2 overflow-x-auto">
+                                <button onClick={() => navigateToDatabase('ALL')} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${!statusFilter || statusFilter === 'ALL' ? 'bg-orange-100 text-orange-700 border-orange-200' : 'bg-white text-slate-500 border-slate-200'}`}>All</button>
+                                <button onClick={() => navigateToDatabase('LOCKED')} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOCKED' ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-slate-500 border-slate-200 hover:border-orange-300'}`}>Ready to Load</button>
+                                <button onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING')} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOADING_VERIFICATION_PENDING' ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-white text-slate-500 border-slate-200 hover:border-yellow-300'}`}>Pending Verification</button>
+                                <button onClick={() => navigateToDatabase('COMPLETED')} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'COMPLETED' ? 'bg-green-600 text-white border-green-600' : 'bg-white text-slate-500 border-slate-200 hover:border-green-300'}`}>Completed</button>
+                            </div>
+                        )}
                     </div>
 
                     {(searchTerm || statusFilter) && (
