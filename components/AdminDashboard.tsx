@@ -92,9 +92,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
     const [dbWorkflow, setDbWorkflow] = useState<'ALL' | 'STAGING' | 'LOADING' | 'APPROVALS'>('ALL');
 
     React.useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const wfParam = urlParams.get('workflow');
+
         if (viewMode === 'staging-db') setDbWorkflow('STAGING');
         else if (viewMode === 'loading-db') setDbWorkflow('LOADING');
         else if (viewMode === 'approvals') setDbWorkflow('APPROVALS');
+        else if (viewMode === 'database' && wfParam === 'APPROVALS') setDbWorkflow('APPROVALS'); // Keep in Database View
         else setDbWorkflow('ALL');
     }, [viewMode]);
     const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
@@ -150,12 +154,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
         let targetView = 'database';
         if (workflowContext === 'STAGING') targetView = 'staging-db';
         else if (workflowContext === 'LOADING') targetView = 'loading-db';
-        else if (workflowContext === 'APPROVALS') targetView = 'approvals';
+        // else if (workflowContext === 'APPROVALS') targetView = 'approvals'; // REMOVED: Don't switch view
 
         // Update URL Params
         newUrl.searchParams.set('view', targetView);
         newUrl.searchParams.set('status', statusFilter);
-        newUrl.searchParams.delete('workflow'); // CLEANUP: Remove redundant param
+
+        if (workflowContext === 'APPROVALS') {
+            newUrl.searchParams.set('workflow', 'APPROVALS');
+        } else {
+            newUrl.searchParams.delete('workflow');
+        }
 
         window.history.pushState({}, '', newUrl.toString());
         setUrlTick(prev => prev + 1); // FORCE UPDATE
