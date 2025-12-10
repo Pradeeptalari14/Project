@@ -14,6 +14,7 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({ sheetId, currentUs
     const [type, setType] = useState<IncidentType>('OTHER');
     const [priority, setPriority] = useState<IncidentPriority>('MEDIUM');
     const [assignedDepartment, setAssignedDepartment] = useState<Department | ''>('');
+    const [occurredAt, setOccurredAt] = useState('');
     const [description, setDescription] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -22,10 +23,32 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({ sheetId, currentUs
     React.useEffect(() => {
         setType('OTHER');
         setPriority('MEDIUM');
+        setPriority('MEDIUM');
         setAssignedDepartment('');
+        setOccurredAt('');
         setDescription('');
         setError(null);
     }, [sheetId]);
+
+    // Auto-Assign Department Logic
+    React.useEffect(() => {
+        if (!assignedDepartment) {
+            switch (type) {
+                case 'DAMAGE':
+                case 'SHORTAGE':
+                    setAssignedDepartment(Department.LOGISTICS);
+                    break;
+                case 'QUALITY':
+                    setAssignedDepartment(Department.QUALITY);
+                    break;
+                case 'SAFETY':
+                    setAssignedDepartment(Department.SAFETY);
+                    break;
+                default:
+                    setAssignedDepartment('');
+            }
+        }
+    }, [type]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -47,6 +70,7 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({ sheetId, currentUs
                     priority,
                     status: 'OPEN',
                     assigned_department: assignedDepartment || null,
+                    occurred_at: occurredAt ? new Date(occurredAt).toISOString() : null, // Save to DB
                     created_by: currentUser
                 });
 
@@ -122,6 +146,16 @@ export const IncidentModal: React.FC<IncidentModalProps> = ({ sheetId, currentUs
                                 <option key={dept} value={dept}>{dept}</option>
                             ))}
                         </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Time of Incident (Optional)</label>
+                        <input
+                            type="datetime-local"
+                            value={occurredAt}
+                            onChange={(e) => setOccurredAt(e.target.value)}
+                            className="w-full p-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 outline-none"
+                        />
                     </div>
 
                     <div>

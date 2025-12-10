@@ -64,6 +64,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
     const [isResetPasswordOpen, setResetPasswordOpen] = useState(false);
     const [resetData, setResetData] = useState<{ id: string, username: string, newPass: string } | null>(null);
 
+    // --- INCIDENT FILTERS STATE ---
+    const [incidentStatusFilter, setIncidentStatusFilter] = useState<'ALL' | 'OPEN' | 'IN_PROGRESS' | 'ON_HOLD' | 'RESOLVED'>('ALL');
+    const [incidentDeptFilter, setIncidentDeptFilter] = useState<string>('ALL');
+
     // --- WIDGET SYSTEM STATE ---
     // Persist preferences to LocalStorage keyed by username
     const [userWidgets, setUserWidgets] = useState<string[]>(() => {
@@ -643,11 +647,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
         const criticalIncidents = incidents.filter(i => i.priority === 'CRITICAL' && i.status !== 'RESOLVED').length;
         const resolvedIncidents = incidents.filter(i => i.status === 'RESOLVED').length;
 
-        // Simple Resolve Handler (Mock for now, would need a real DB update function)
-        const handleResolve = (id: string, notes: string) => {
-            alert(`Resolving incident ${id} with notes: ${notes}`);
-            // In a real app: updateIncident(id, { status: 'RESOLVED', resolutionNotes: notes, resolvedAt: new Date().toISOString() })
-            // For now, we rely on the user understanding this is a UI demo or we need to add updateIncident to AppContext
+        // Date Range State
+        const [incidentStartDate, setIncidentStartDate] = useState('');
+        const [incidentEndDate, setIncidentEndDate] = useState('');
+
+        // Enhanced Resolve/Update Handler
+        const handleResolve = async (id: string, notes: string, status: 'RESOLVED' | 'IN_PROGRESS' | 'ON_HOLD' = 'RESOLVED') => {
+            if (!updateIncident) {
+                alert("Error: Update function not available.");
+                return;
+            }
+
+            const updates: any = {
+                status,
+                resolutionNotes: notes
+            };
+
+            if (status === 'RESOLVED') {
+                updates.resolvedAt = new Date().toISOString();
+                updates.resolvedBy = currentUser?.username || 'Admin';
+            }
+
+            await updateIncident(id, updates);
         };
 
         const handleResetSystem = async () => {
@@ -681,8 +702,51 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="p-4 border-b border-slate-100 flex justify-between items-center">
                         <h3 className="font-bold text-slate-800 flex items-center gap-2"><ShieldAlert className="text-slate-400" size={18} /> Incident Control Center</h3>
-                        <div className="flex gap-2">
-                            {/* Filters could go here */}
+                        <div className="flex gap-2 items-center">
+                            {/* Filters */}
+                            <select
+                                className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                value={incidentStatusFilter}
+                                onChange={(e) => setIncidentStatusFilter(e.target.value as any)}
+                            >
+                                <option value="ALL">All Status</option>
+                                <option value="OPEN">Open</option>
+                                <option value="IN_PROGRESS">In Progress</option>
+                                <option value="ON_HOLD">On Hold</option>
+                                <option value="RESOLVED">Resolved</option>
+                            </select>
+
+                            <select
+                                className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                value={incidentDeptFilter}
+                                onChange={(e) => setIncidentDeptFilter(e.target.value)}
+                            >
+                                <option value="ALL">All Depts</option>
+                                <option value="LOGISTICS">Logistics</option>
+                                <option value="QUALITY">Quality</option>
+                                <option value="MAINTENANCE">Maintenance</option>
+                                <option value="OPERATIONS">Operations</option>
+                                <option value="IT">IT</option>
+                                <option value="HR">HR</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+
+                            <input
+                                type="date"
+                                value={incidentStartDate}
+                                onChange={(e) => setIncidentStartDate(e.target.value)}
+                                className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                title="Start Date"
+                            />
+                            <span className="text-slate-400">-</span>
+                            <input
+                                type="date"
+                                value={incidentEndDate}
+                                onChange={(e) => setIncidentEndDate(e.target.value)}
+                                className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                title="End Date"
+                            />
+
                             {isAdmin && (
                                 <button
                                     onClick={handleResetSystem}
@@ -708,41 +772,114 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
 
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {incidents.length === 0 ? (
-                                <tr><td colSpan={7} className="p-8 text-center text-slate-400">No incidents reported.</td></tr>
-                            ) : (
-                                incidents.map(inc => (
-                                    <tr key={inc.id} className="hover:bg-slate-50">
-                                        <td className="p-4">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${inc.priority === 'CRITICAL' ? 'bg-rose-100 text-rose-700' :
-                                                inc.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                                                    inc.priority === 'MEDIUM' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'
-                                                }`}>{inc.priority}</span>
-                                        </td>
-                                        <td className="p-4 font-bold text-slate-700">{inc.type}</td>
-                                        <td className="p-4 max-w-xs truncate" title={inc.description}>{inc.description}</td>
-                                        <td className="p-4 text-slate-600 font-bold">{inc.assignedDepartment || '-'}</td>
+                            {incidents.filter(inc => {
+                                // 1. Status Filter
+                                const matchStatus = incidentStatusFilter === 'ALL' || inc.status === incidentStatusFilter;
+                                // 2. Dept Filter
+                                const matchDept = incidentDeptFilter === 'ALL' || inc.assignedDepartment === incidentDeptFilter;
+                                // 3. Date Filter
+                                const incDate = new Date(inc.createdAt).toISOString().split('T')[0];
+                                const matchStart = !incidentStartDate || incDate >= incidentStartDate;
+                                const matchEnd = !incidentEndDate || incDate <= incidentEndDate;
 
-                                        <td className="p-4 text-slate-600">{inc.createdBy}<br /><span className="text-[10px] text-slate-400">{new Date(inc.createdAt).toLocaleString()}</span></td>
-                                        <td className="p-4 font-mono text-blue-600">{inc.sheetId}</td>
-                                        <td className="p-4">
-                                            <span className={`flex items-center gap-1 font-bold text-xs ${inc.status === 'OPEN' ? 'text-rose-600' : inc.status === 'RESOLVED' ? 'text-green-600' : 'text-amber-600'}`}>
-                                                {inc.status === 'RESOLVED' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
-                                                {inc.status}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-center">
-                                            {inc.status !== 'RESOLVED' && (
-                                                <button
-                                                    onClick={() => handleResolve(inc.id, "Resolved by Admin")}
-                                                    className="px-3 py-1 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-xs font-bold border border-green-200 transition-colors"
-                                                >
-                                                    Resolve
-                                                </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))
+                                return matchStatus && matchDept && matchStart && matchEnd;
+                            }).length === 0 ? (
+                                <tr><td colSpan={8} className="p-8 text-center text-slate-400">No matching incidents found.</td></tr>
+                            ) : (
+                                incidents
+                                    .filter(inc => {
+                                        const matchStatus = incidentStatusFilter === 'ALL' || inc.status === incidentStatusFilter;
+                                        const matchDept = incidentDeptFilter === 'ALL' || inc.assignedDepartment === incidentDeptFilter;
+                                        const incDate = new Date(inc.createdAt).toISOString().split('T')[0];
+                                        const matchStart = !incidentStartDate || incDate >= incidentStartDate;
+                                        const matchEnd = !incidentEndDate || incDate <= incidentEndDate;
+                                        return matchStatus && matchDept && matchStart && matchEnd;
+                                    })
+                                    .map(inc => (
+                                        <tr key={inc.id} className="hover:bg-slate-50">
+                                            <td className="p-4">
+                                                <span className={`px-2 py-1 rounded text-xs font-bold ${inc.priority === 'CRITICAL' ? 'bg-rose-100 text-rose-700' :
+                                                    inc.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
+                                                        inc.priority === 'MEDIUM' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'
+                                                    }`}>{inc.priority}</span>
+                                            </td>
+                                            <td className="p-4 font-bold text-slate-700">{inc.type}</td>
+                                            <td className="p-4 max-w-xs truncate" title={inc.description}>{inc.description}</td>
+                                            <td className="p-4 text-slate-600 font-bold">{inc.assignedDepartment || '-'}</td>
+
+                                            <td className="p-4 text-slate-600">
+                                                {inc.createdBy}
+                                                <div className="text-[10px] text-slate-400 mt-1">
+                                                    Created: {new Date(inc.createdAt).toLocaleString()}
+                                                    {inc.occurredAt && (
+                                                        <div className="text-rose-600 font-bold bg-rose-50 px-1 rounded w-fit mt-0.5">
+                                                            Time: {new Date(inc.occurredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="p-4 font-mono text-blue-600">{inc.sheetId}</td>
+                                            <td className="p-4">
+                                                <span className={`flex items-center gap-1 font-bold text-xs ${inc.status === 'OPEN' ? 'text-rose-600' :
+                                                    inc.status === 'RESOLVED' ? 'text-green-600' :
+                                                        inc.status === 'IN_PROGRESS' ? 'text-blue-600' :
+                                                            'text-amber-600'}`}>
+                                                    {inc.status === 'RESOLVED' && <CheckCircle size={14} />}
+                                                    {inc.status === 'OPEN' && <AlertCircle size={14} />}
+                                                    {inc.status === 'IN_PROGRESS' && <Clock size={14} />}
+                                                    {inc.status === 'ON_HOLD' && <AlertTriangle size={14} />}
+                                                    {inc.status.replace('_', ' ')}
+                                                </span>
+                                                {inc.resolutionNotes && (
+                                                    <div className="text-[10px] text-slate-400 italic mt-1 max-w-[100px] truncate" title={inc.resolutionNotes}>
+                                                        {inc.status === 'ON_HOLD' ? 'Reason: ' : 'Note: '}{inc.resolutionNotes}
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="p-4 text-center">
+                                                {inc.status !== 'RESOLVED' && (
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        {/* Start / Resume */}
+                                                        {inc.status !== 'IN_PROGRESS' && (
+                                                            <button
+                                                                onClick={() => handleResolve(inc.id, "Started Work", 'IN_PROGRESS')}
+                                                                title="Mark In Progress"
+                                                                className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                                                            >
+                                                                <Clock size={14} />
+                                                            </button>
+                                                        )}
+
+                                                        {/* Hold */}
+                                                        {inc.status !== 'ON_HOLD' && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    const reason = prompt("Enter Hold Reason:");
+                                                                    if (reason) handleResolve(inc.id, reason, 'ON_HOLD');
+                                                                }}
+                                                                title="Put On Hold"
+                                                                className="p-1.5 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-lg transition-colors"
+                                                            >
+                                                                <AlertTriangle size={14} />
+                                                            </button>
+                                                        )}
+
+                                                        {/* Resolve */}
+                                                        <button
+                                                            onClick={() => {
+                                                                const note = prompt("Enter Resolution/Closing Comment:");
+                                                                if (note) handleResolve(inc.id, note, 'RESOLVED');
+                                                            }}
+                                                            title="Resolve"
+                                                            className="p-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
+                                                        >
+                                                            <CheckCircle size={14} />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
                             )}
                         </tbody>
                     </table>

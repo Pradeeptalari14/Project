@@ -215,11 +215,16 @@ export const LoadingSheet: React.FC<Props> = ({ sheet, onClose, initialPreview =
         const intVal = parseInt(val);
         const sItem = sheet.stagingItems.find(s => s.srNo === skuSrNo);
 
-        // Strict Validation: Must match Cases Per Pallet from Staging
-        // This is ONLY applied to the grid cells (1-10) via the onBlur event
+        // Soft Validation: Warn if mismatch but allow override (Audit Recommendation)
         if (sItem && sItem.casesPerPlt > 0 && intVal !== sItem.casesPerPlt) {
-            alert(`Incorrect Quantity! The defined Cases/PLT for this SKU is ${sItem.casesPerPlt}. Please fill this number.`);
-            handleLoadingCellChange(skuSrNo, row, col, '');
+            const confirmed = window.confirm(
+                `⚠️ Quantity Mismatch!\n\nExpected: ${sItem.casesPerPlt}\nEntered: ${intVal}\n\nAre you sure you want to proceed with a partial/different pallet count?`
+            );
+
+            if (!confirmed) {
+                handleLoadingCellChange(skuSrNo, row, col, '');
+            }
+            // If confirmed, do nothing (keep the value)
         }
     };
 

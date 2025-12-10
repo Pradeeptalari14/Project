@@ -28,6 +28,7 @@ interface AppContextType {
     addNotification: (msg: string) => void;
     markAllRead: () => void;
     fetchIncidents: () => Promise<void>;
+    updateIncident: (id: string, updates: Partial<Incident>) => Promise<void>;
     resetSystemData: () => Promise<void>;
 }
 
@@ -72,6 +73,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setIncidents(data as Incident[]);
         }
     };
+
+    const updateIncident = async (id: string, updates: Partial<Incident>) => {
+        // Optimistic Update
+        setIncidents(prev => prev.map(inc => inc.id === id ? { ...inc, ...updates } : inc));
+
+        const { error } = await supabase
+            .from('incidents')
+            .update(updates)
+            .eq('id', id);
+
+        if (error) {
+            console.error("Failed to update incident:", error);
+            alert("Failed to save incident update.");
+            fetchIncidents(); // Revert on error
+        } else {
+            addNotification(`Incident updated.`);
+        }
+    };
+
+
 
     const fetchUsers = async () => {
         const { data } = await supabase.from('users').select('*');
@@ -347,7 +368,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             currentUser, users, sheets, notifications, auditLogs, incidents, isLoading,
             login, logout, register, approveUser, deleteUser, resetPassword,
             addSheet, updateSheet, deleteSheet, addComment,
-            acquireLock, releaseLock, addNotification, markAllRead, fetchIncidents, resetSystemData
+            acquireLock, releaseLock, addNotification, markAllRead, fetchIncidents, resetSystemData, updateIncident
         }}>
             {children}
         </AppContext.Provider>
