@@ -14,6 +14,8 @@ interface Props {
     initialPreview?: boolean;
 }
 
+const EMPTY_STAGING_ITEMS = [];
+
 export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock, initialPreview = false }) => {
     const { currentUser, addSheet, updateSheet, acquireLock, releaseLock } = useApp();
     const isLocked = (existingSheet?.status === SheetStatus.LOCKED || existingSheet?.status === SheetStatus.COMPLETED || existingSheet?.status === SheetStatus.STAGING_VERIFICATION_PENDING) && currentUser?.role !== Role.ADMIN ||
