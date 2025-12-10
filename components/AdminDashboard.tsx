@@ -705,535 +705,528 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 <th className="p-4">Status</th>
                                 <th className="p-4 text-center">Actions</th>
                             </tr>
-                            <th className="p-4">Priority</th>
-                            <th className="p-4">Type</th>
-                            <th className="p-4">Description</th>
-                            <th className="p-4">Reported By</th>
-                            <th className="p-4">Sheet ID</th>
-                            <th className="p-4">Status</th>
-                            <th className="p-4 text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                        {incidents.length === 0 ? (
-                            <tr><td colSpan={7} className="p-8 text-center text-slate-400">No incidents reported.</td></tr>
-                        ) : (
-                            incidents.map(inc => (
-                                <tr key={inc.id} className="hover:bg-slate-50">
-                                    <td className="p-4">
-                                        <span className={`px-2 py-1 rounded text-xs font-bold ${inc.priority === 'CRITICAL' ? 'bg-rose-100 text-rose-700' :
-                                            inc.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                                                inc.priority === 'MEDIUM' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'
-                                            }`}>{inc.priority}</span>
-                                    </td>
-                                    <td className="p-4 font-bold text-slate-700">{inc.type}</td>
-                                    <td className="p-4 max-w-xs truncate" title={inc.description}>{inc.description}</td>
-                                    <td className="p-4 text-slate-600 font-bold">{inc.assignedDepartment || '-'}</td>
-                                    <td className="p-4 text-slate-600 font-bold">{inc.assignedDepartment || '-'}</td>
-                                    <td className="p-4 text-slate-600">{inc.createdBy}<br /><span className="text-[10px] text-slate-400">{new Date(inc.createdAt).toLocaleString()}</span></td>
-                                    <td className="p-4 font-mono text-blue-600">{inc.sheetId}</td>
-                                    <td className="p-4">
-                                        <span className={`flex items-center gap-1 font-bold text-xs ${inc.status === 'OPEN' ? 'text-rose-600' : inc.status === 'RESOLVED' ? 'text-green-600' : 'text-amber-600'}`}>
-                                            {inc.status === 'RESOLVED' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
-                                            {inc.status}
-                                        </span>
-                                    </td>
-                                    <td className="p-4 text-center">
-                                        {inc.status !== 'RESOLVED' && (
-                                            <button
-                                                onClick={() => handleResolve(inc.id, "Resolved by Admin")}
-                                                className="px-3 py-1 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-xs font-bold border border-green-200 transition-colors"
-                                            >
-                                                Resolve
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {incidents.length === 0 ? (
+                                <tr><td colSpan={7} className="p-8 text-center text-slate-400">No incidents reported.</td></tr>
+                            ) : (
+                                incidents.map(inc => (
+                                    <tr key={inc.id} className="hover:bg-slate-50">
+                                        <td className="p-4">
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${inc.priority === 'CRITICAL' ? 'bg-rose-100 text-rose-700' :
+                                                inc.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
+                                                    inc.priority === 'MEDIUM' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'
+                                                }`}>{inc.priority}</span>
+                                        </td>
+                                        <td className="p-4 font-bold text-slate-700">{inc.type}</td>
+                                        <td className="p-4 max-w-xs truncate" title={inc.description}>{inc.description}</td>
+                                        <td className="p-4 text-slate-600 font-bold">{inc.assignedDepartment || '-'}</td>
+
+                                        <td className="p-4 text-slate-600">{inc.createdBy}<br /><span className="text-[10px] text-slate-400">{new Date(inc.createdAt).toLocaleString()}</span></td>
+                                        <td className="p-4 font-mono text-blue-600">{inc.sheetId}</td>
+                                        <td className="p-4">
+                                            <span className={`flex items-center gap-1 font-bold text-xs ${inc.status === 'OPEN' ? 'text-rose-600' : inc.status === 'RESOLVED' ? 'text-green-600' : 'text-amber-600'}`}>
+                                                {inc.status === 'RESOLVED' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
+                                                {inc.status}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-center">
+                                            {inc.status !== 'RESOLVED' && (
+                                                <button
+                                                    onClick={() => handleResolve(inc.id, "Resolved by Admin")}
+                                                    className="px-3 py-1 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-xs font-bold border border-green-200 transition-colors"
+                                                >
+                                                    Resolve
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div >
         );
     }
 
-if (viewMode === 'database' || viewMode === 'approvals' || viewMode === 'staging-db' || viewMode === 'loading-db') {
+    if (viewMode === 'database' || viewMode === 'approvals' || viewMode === 'staging-db' || viewMode === 'loading-db') {
 
-    // Title & Context Logic
-    let viewTitle = 'Database Management';
-    let isLockedWorkflow = false;
+        // Title & Context Logic
+        let viewTitle = 'Database Management';
+        let isLockedWorkflow = false;
 
-    if (viewMode === 'staging-db') {
-        viewTitle = 'Staging Workflow Database';
-        isLockedWorkflow = true;
-    } else if (viewMode === 'loading-db') {
-        viewTitle = 'Loading Workflow Database';
-        isLockedWorkflow = true;
-    } else if (viewMode === 'approvals') {
-        viewTitle = 'Shift Lead Database'; // Unified Title
-    }
-
-    const isAdmin = currentUser?.role === Role.ADMIN;
-    const isShiftLead = currentUser?.role === Role.SHIFT_LEAD;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const statusFilter = urlParams.get('status');
-
-
-
-    if (!isAdmin && !isShiftLead && viewMode !== 'staging-db' && viewMode !== 'loading-db') {
-        return (
-            <div className="flex flex-col items-center justify-center p-12 h-96 text-slate-400">
-                <ShieldAlert size={48} className="mb-4 text-slate-300" />
-                <h3 className="text-lg font-bold">Access Denied</h3>
-                <p className="text-sm">You do not have permission to view the database.</p>
-            </div>
-        );
-    }
-
-    const filteredSheets = sheets.filter(s => {
-        const term = searchTerm.toLowerCase();
-        const matchesSearch =
-            (s.id.toLowerCase().includes(term)) ||
-            (s.supervisorName?.toLowerCase().includes(term)) ||
-            (s.loadingSvName?.toLowerCase().includes(term)) ||
-            (s.completedBy && s.completedBy.toLowerCase().includes(term)) ||
-            (s.driverName && s.driverName.toLowerCase().includes(term)) ||
-            (s.vehicleNo && s.vehicleNo.toLowerCase().includes(term)) ||
-            (s.destination && s.destination.toLowerCase().includes(term));
-
-        // 1. Primary Filter: Status from URL (Overrules everything if set and not 'ALL')
-        if (statusFilter && statusFilter !== 'ALL') {
-            if (s.status !== statusFilter) return false;
+        if (viewMode === 'staging-db') {
+            viewTitle = 'Staging Workflow Database';
+            isLockedWorkflow = true;
+        } else if (viewMode === 'loading-db') {
+            viewTitle = 'Loading Workflow Database';
+            isLockedWorkflow = true;
         } else if (viewMode === 'approvals') {
-            // SPECIAL RULE: Shift Leads "Easy View" - If no filter, show ALL Pending items (Staging OR Loading)
-            const isPending = s.status === SheetStatus.STAGING_VERIFICATION_PENDING || s.status === SheetStatus.LOADING_VERIFICATION_PENDING;
-            if (!isPending) return false;
+            viewTitle = 'Shift Lead Database'; // Unified Title
         }
 
-        // 2. Scope Filter: Workflow Constraints
-        // Does this view have a strict list of allowed statuses?
-        const allowedStatuses = VIEW_SCOPES[viewMode];
-        if (allowedStatuses) {
-            if (!allowedStatuses.includes(s.status)) return false;
-        }
+        const isAdmin = currentUser?.role === Role.ADMIN;
+        const isShiftLead = currentUser?.role === Role.SHIFT_LEAD;
 
-        // 3. Date Range Filter
-        if (dateRange.start) {
-            const sheetDate = new Date(s.date).getTime();
-            const startDate = new Date(dateRange.start).getTime();
-            if (sheetDate < startDate) return false;
-        }
-        if (dateRange.end) {
-            const sheetDate = new Date(s.date).getTime();
-            const endDate = new Date(dateRange.end).getTime();
-            if (sheetDate > endDate) return false;
-        }
+        const urlParams = new URLSearchParams(window.location.search);
+        const statusFilter = urlParams.get('status');
 
-        // 4. Supervisor Filter
-        if (supervisorFilter !== 'ALL') {
-            const svName = resolveUserName(s.supervisorName, s.createdBy)?.toLowerCase() || '';
-            const ldgName = resolveUserName(s.loadingSvName, s.completedBy)?.toLowerCase() || '';
-            if (!svName.includes(supervisorFilter.toLowerCase()) && !ldgName.includes(supervisorFilter.toLowerCase())) return false;
-        }
 
-        // 5. Location Filter
-        if (locationFilter !== 'ALL') {
-            if (!s.destination || !s.destination.toLowerCase().includes(locationFilter.toLowerCase())) return false;
-        }
 
-        // 6. NEW: Duration Filter
-        if (durationFilter !== 'ALL') {
-            if (!s.createdAt || !s.completedAt) return false; // Must be completed to have duration
-            const diff = new Date(s.completedAt).getTime() - new Date(s.createdAt).getTime();
-            const mins = diff / 60000;
-
-            if (durationFilter === 'UNDER_30' && mins >= 30) return false;
-            if (durationFilter === '30_60' && (mins < 30 || mins > 60)) return false;
-            if (durationFilter === 'OVER_60' && mins <= 60) return false;
-            if (durationFilter === 'OVER_120' && mins <= 120) return false;
-        }
-
-        return matchesSearch;
-    }).sort((a, b) => {
-        if (!sortConfig) return 0;
-        const { key, direction } = sortConfig;
-        let valA: any = a[key as keyof SheetData];
-        let valB: any = b[key as keyof SheetData];
-
-        if (key === 'supervisorName') valA = resolveUserName(a.supervisorName, a.createdBy) || '';
-        if (key === 'supervisorName') valB = resolveUserName(b.supervisorName, b.createdBy) || '';
-        if (key === 'loadingSvName') valA = resolveUserName(a.loadingSvName, a.completedBy) || '';
-        if (key === 'loadingSvName') valB = resolveUserName(b.loadingSvName, b.completedBy) || '';
-
-        if (key === 'date' || key.includes('Time') || key.includes('At')) {
-            const dA = new Date(valA).getTime();
-            const dB = new Date(valB).getTime();
-            return direction === 'asc' ? dA - dB : dB - dA;
-        }
-
-        if (typeof valA === 'string' && typeof valB === 'string') {
-            return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-        }
-        if (valA < valB) return direction === 'asc' ? -1 : 1;
-        if (valA > valB) return direction === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    return (
-        <div className="space-y-6">
-            <div className={`p-6 rounded-xl shadow-sm border ${viewMode === 'approvals' ? 'bg-purple-50 border-purple-100' : 'bg-white border-slate-100'}`}>
-                <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
-                    <h2 className="text-xl font-bold flex gap-2">
-                        {viewMode === 'approvals' ? <CheckCircle2 className="text-purple-600" /> : <Database className="text-blue-600" />}
-                        {viewTitle} <span className="text-slate-400 font-medium text-lg">({filteredSheets.length})</span>
-                    </h2>
-
-                    <div className="flex gap-2">
-                        {/* View Mode Toggle (Details vs Duration) */}
-                        <div className="bg-slate-100 p-1 rounded-lg flex items-center">
-                            <button
-                                onClick={() => setDbViewMode('details')}
-                                className={`p-2 rounded-md transition-all ${dbViewMode === 'details' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
-                                title="Detailed List View"
-                            >
-                                <LayoutDashboard size={18} />
-                            </button>
-                            <button
-                                onClick={() => setDbViewMode('duration')}
-                                className={`p-2 rounded-md transition-all ${dbViewMode === 'duration' ? 'bg-white shadow-sm text-green-600' : 'text-slate-400 hover:text-slate-600'}`}
-                                title="Duration Analysis View"
-                            >
-                                <Clock size={18} />
-                            </button>
-                        </div>
-                        <button onClick={handleExportExcel} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm text-sm font-bold"><Download size={16} /> Export View</button>
-                    </div>
+        if (!isAdmin && !isShiftLead && viewMode !== 'staging-db' && viewMode !== 'loading-db') {
+            return (
+                <div className="flex flex-col items-center justify-center p-12 h-96 text-slate-400">
+                    <ShieldAlert size={48} className="mb-4 text-slate-300" />
+                    <h3 className="text-lg font-bold">Access Denied</h3>
+                    <p className="text-sm">You do not have permission to view the database.</p>
                 </div>
+            );
+        }
 
-                {/* NEW: Date Range & Extended Filters Toolbar */}
-                <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4 flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-2">
-                        <CalendarRange size={18} className="text-slate-500" />
-                        <span className="text-sm font-bold text-slate-700">Date Range:</span>
-                        <input
-                            type="date"
-                            className="p-1.5 text-sm border border-slate-300 rounded hover:border-blue-400 focus:border-blue-500 outline-none"
-                            value={dateRange.start}
-                            onChange={e => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                        />
-                        <span className="text-slate-400">-</span>
-                        <input
-                            type="date"
-                            className="p-1.5 text-sm border border-slate-300 rounded hover:border-blue-400 focus:border-blue-500 outline-none"
-                            value={dateRange.end}
-                            onChange={e => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                        />
-                        {(dateRange.start || dateRange.end) && (
-                            <button onClick={() => setDateRange({ start: '', end: '' })} className="text-xs text-red-500 hover:text-red-700 font-medium ml-2">Clear</button>
-                        )}
+        const filteredSheets = sheets.filter(s => {
+            const term = searchTerm.toLowerCase();
+            const matchesSearch =
+                (s.id.toLowerCase().includes(term)) ||
+                (s.supervisorName?.toLowerCase().includes(term)) ||
+                (s.loadingSvName?.toLowerCase().includes(term)) ||
+                (s.completedBy && s.completedBy.toLowerCase().includes(term)) ||
+                (s.driverName && s.driverName.toLowerCase().includes(term)) ||
+                (s.vehicleNo && s.vehicleNo.toLowerCase().includes(term)) ||
+                (s.destination && s.destination.toLowerCase().includes(term));
+
+            // 1. Primary Filter: Status from URL (Overrules everything if set and not 'ALL')
+            if (statusFilter && statusFilter !== 'ALL') {
+                if (s.status !== statusFilter) return false;
+            } else if (viewMode === 'approvals') {
+                // SPECIAL RULE: Shift Leads "Easy View" - If no filter, show ALL Pending items (Staging OR Loading)
+                const isPending = s.status === SheetStatus.STAGING_VERIFICATION_PENDING || s.status === SheetStatus.LOADING_VERIFICATION_PENDING;
+                if (!isPending) return false;
+            }
+
+            // 2. Scope Filter: Workflow Constraints
+            // Does this view have a strict list of allowed statuses?
+            const allowedStatuses = VIEW_SCOPES[viewMode];
+            if (allowedStatuses) {
+                if (!allowedStatuses.includes(s.status)) return false;
+            }
+
+            // 3. Date Range Filter
+            if (dateRange.start) {
+                const sheetDate = new Date(s.date).getTime();
+                const startDate = new Date(dateRange.start).getTime();
+                if (sheetDate < startDate) return false;
+            }
+            if (dateRange.end) {
+                const sheetDate = new Date(s.date).getTime();
+                const endDate = new Date(dateRange.end).getTime();
+                if (sheetDate > endDate) return false;
+            }
+
+            // 4. Supervisor Filter
+            if (supervisorFilter !== 'ALL') {
+                const svName = resolveUserName(s.supervisorName, s.createdBy)?.toLowerCase() || '';
+                const ldgName = resolveUserName(s.loadingSvName, s.completedBy)?.toLowerCase() || '';
+                if (!svName.includes(supervisorFilter.toLowerCase()) && !ldgName.includes(supervisorFilter.toLowerCase())) return false;
+            }
+
+            // 5. Location Filter
+            if (locationFilter !== 'ALL') {
+                if (!s.destination || !s.destination.toLowerCase().includes(locationFilter.toLowerCase())) return false;
+            }
+
+            // 6. NEW: Duration Filter
+            if (durationFilter !== 'ALL') {
+                if (!s.createdAt || !s.completedAt) return false; // Must be completed to have duration
+                const diff = new Date(s.completedAt).getTime() - new Date(s.createdAt).getTime();
+                const mins = diff / 60000;
+
+                if (durationFilter === 'UNDER_30' && mins >= 30) return false;
+                if (durationFilter === '30_60' && (mins < 30 || mins > 60)) return false;
+                if (durationFilter === 'OVER_60' && mins <= 60) return false;
+                if (durationFilter === 'OVER_120' && mins <= 120) return false;
+            }
+
+            return matchesSearch;
+        }).sort((a, b) => {
+            if (!sortConfig) return 0;
+            const { key, direction } = sortConfig;
+            let valA: any = a[key as keyof SheetData];
+            let valB: any = b[key as keyof SheetData];
+
+            if (key === 'supervisorName') valA = resolveUserName(a.supervisorName, a.createdBy) || '';
+            if (key === 'supervisorName') valB = resolveUserName(b.supervisorName, b.createdBy) || '';
+            if (key === 'loadingSvName') valA = resolveUserName(a.loadingSvName, a.completedBy) || '';
+            if (key === 'loadingSvName') valB = resolveUserName(b.loadingSvName, b.completedBy) || '';
+
+            if (key === 'date' || key.includes('Time') || key.includes('At')) {
+                const dA = new Date(valA).getTime();
+                const dB = new Date(valB).getTime();
+                return direction === 'asc' ? dA - dB : dB - dA;
+            }
+
+            if (typeof valA === 'string' && typeof valB === 'string') {
+                return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            }
+            if (valA < valB) return direction === 'asc' ? -1 : 1;
+            if (valA > valB) return direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        return (
+            <div className="space-y-6">
+                <div className={`p-6 rounded-xl shadow-sm border ${viewMode === 'approvals' ? 'bg-purple-50 border-purple-100' : 'bg-white border-slate-100'}`}>
+                    <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
+                        <h2 className="text-xl font-bold flex gap-2">
+                            {viewMode === 'approvals' ? <CheckCircle2 className="text-purple-600" /> : <Database className="text-blue-600" />}
+                            {viewTitle} <span className="text-slate-400 font-medium text-lg">({filteredSheets.length})</span>
+                        </h2>
+
+                        <div className="flex gap-2">
+                            {/* View Mode Toggle (Details vs Duration) */}
+                            <div className="bg-slate-100 p-1 rounded-lg flex items-center">
+                                <button
+                                    onClick={() => setDbViewMode('details')}
+                                    className={`p-2 rounded-md transition-all ${dbViewMode === 'details' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                    title="Detailed List View"
+                                >
+                                    <LayoutDashboard size={18} />
+                                </button>
+                                <button
+                                    onClick={() => setDbViewMode('duration')}
+                                    className={`p-2 rounded-md transition-all ${dbViewMode === 'duration' ? 'bg-white shadow-sm text-green-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                    title="Duration Analysis View"
+                                >
+                                    <Clock size={18} />
+                                </button>
+                            </div>
+                            <button onClick={handleExportExcel} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm text-sm font-bold"><Download size={16} /> Export View</button>
+                        </div>
                     </div>
 
-                    {/* Placeholder for Future Supervisor Filter -> ACTIVATED */}
-                    <div className="flex items-center gap-2">
-                        <Users size={18} className="text-slate-500" />
-                        <span className="text-sm font-bold text-slate-700">Supervisor:</span>
-                        <select
-                            className="p-1.5 text-sm border border-slate-300 rounded hover:border-blue-400 focus:border-blue-500 outline-none bg-white"
-                            value={supervisorFilter}
-                            onChange={e => setSupervisorFilter(e.target.value)}
-                        >
-                            <option value="ALL">All Supervisors</option>
-                            {users.filter(u => u.role === Role.STAGING_SUPERVISOR || u.role === Role.LOADING_SUPERVISOR).map(u => (
-                                <option key={u.id} value={u.fullName || u.username}>{u.fullName || u.username}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* NEW: Location Filter */}
-                    <div className="flex items-center gap-2">
-                        <MapPin size={18} className="text-slate-500" />
-                        <span className="text-sm font-bold text-slate-700">Location:</span>
-                        <select
-                            className="p-1.5 text-sm border border-slate-300 rounded hover:border-blue-400 focus:border-blue-500 outline-none bg-white max-w-[150px]"
-                            value={locationFilter}
-                            onChange={e => setLocationFilter(e.target.value)}
-                        >
-                            <option value="ALL">All Locations</option>
-                            {/* Unique Destinations */}
-                            {Array.from(new Set(sheets.map(s => s.destination).filter(Boolean))).sort().map(loc => (
-                                <option key={loc} value={loc}>{loc}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* NEW: Duration Filter Dropdown */}
-                    <div className="flex items-center gap-2">
-                        <Clock size={18} className="text-slate-500" />
-                        <span className="text-sm font-bold text-slate-700">Duration:</span>
-                        <select
-                            className="p-1.5 text-sm border border-slate-300 rounded hover:border-blue-400 focus:border-blue-500 outline-none bg-white max-w-[150px]"
-                            value={durationFilter}
-                            onChange={e => setDurationFilter(e.target.value)}
-                        >
-                            <option value="ALL">All Durations</option>
-                            <option value="UNDER_30">Under 30 Mins</option>
-                            <option value="30_60">30 Mins - 1 Hour</option>
-                            <option value="OVER_60">Over 1 Hour</option>
-                            <option value="OVER_120">Over 2 Hours</option>
-                        </select>
-                    </div>
-
-
-
-                    {/* NEW: Database (Workflow) Filter - Replaces Tabs */}
-                    {viewMode !== 'approvals' && (
+                    {/* NEW: Date Range & Extended Filters Toolbar */}
+                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4 flex flex-wrap items-center gap-4">
                         <div className="flex items-center gap-2">
-                            <Database size={18} className="text-slate-500" />
-                            <span className="text-sm font-bold text-slate-700">Database:</span>
+                            <CalendarRange size={18} className="text-slate-500" />
+                            <span className="text-sm font-bold text-slate-700">Date Range:</span>
+                            <input
+                                type="date"
+                                className="p-1.5 text-sm border border-slate-300 rounded hover:border-blue-400 focus:border-blue-500 outline-none"
+                                value={dateRange.start}
+                                onChange={e => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                            />
+                            <span className="text-slate-400">-</span>
+                            <input
+                                type="date"
+                                className="p-1.5 text-sm border border-slate-300 rounded hover:border-blue-400 focus:border-blue-500 outline-none"
+                                value={dateRange.end}
+                                onChange={e => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                            />
+                            {(dateRange.start || dateRange.end) && (
+                                <button onClick={() => setDateRange({ start: '', end: '' })} className="text-xs text-red-500 hover:text-red-700 font-medium ml-2">Clear</button>
+                            )}
+                        </div>
+
+                        {/* Placeholder for Future Supervisor Filter -> ACTIVATED */}
+                        <div className="flex items-center gap-2">
+                            <Users size={18} className="text-slate-500" />
+                            <span className="text-sm font-bold text-slate-700">Supervisor:</span>
                             <select
-                                className="p-1.5 text-sm border border-slate-300 rounded hover:border-blue-400 focus:border-blue-500 outline-none bg-white font-bold text-slate-700"
-                                value={dbWorkflow}
-                                onChange={(e) => {
-                                    const val = e.target.value as any;
-                                    setDbWorkflow(val);
-                                    navigateToDatabase(val === 'ALL' ? 'ALL' : 'ALL', val);
-                                }}
+                                className="p-1.5 text-sm border border-slate-300 rounded hover:border-blue-400 focus:border-blue-500 outline-none bg-white"
+                                value={supervisorFilter}
+                                onChange={e => setSupervisorFilter(e.target.value)}
                             >
-                                <option value="ALL">All Databases</option>
-                                <option value="STAGING">Staging Workflow</option>
-                                <option value="LOADING">Loading Workflow</option>
-                                <option value="APPROVALS">Shift Lead View</option>
+                                <option value="ALL">All Supervisors</option>
+                                {users.filter(u => u.role === Role.STAGING_SUPERVISOR || u.role === Role.LOADING_SUPERVISOR).map(u => (
+                                    <option key={u.id} value={u.fullName || u.username}>{u.fullName || u.username}</option>
+                                ))}
                             </select>
                         </div>
-                    )}
-                </div>
+
+                        {/* NEW: Location Filter */}
+                        <div className="flex items-center gap-2">
+                            <MapPin size={18} className="text-slate-500" />
+                            <span className="text-sm font-bold text-slate-700">Location:</span>
+                            <select
+                                className="p-1.5 text-sm border border-slate-300 rounded hover:border-blue-400 focus:border-blue-500 outline-none bg-white max-w-[150px]"
+                                value={locationFilter}
+                                onChange={e => setLocationFilter(e.target.value)}
+                            >
+                                <option value="ALL">All Locations</option>
+                                {/* Unique Destinations */}
+                                {Array.from(new Set(sheets.map(s => s.destination).filter(Boolean))).sort().map(loc => (
+                                    <option key={loc} value={loc}>{loc}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* NEW: Duration Filter Dropdown */}
+                        <div className="flex items-center gap-2">
+                            <Clock size={18} className="text-slate-500" />
+                            <span className="text-sm font-bold text-slate-700">Duration:</span>
+                            <select
+                                className="p-1.5 text-sm border border-slate-300 rounded hover:border-blue-400 focus:border-blue-500 outline-none bg-white max-w-[150px]"
+                                value={durationFilter}
+                                onChange={e => setDurationFilter(e.target.value)}
+                            >
+                                <option value="ALL">All Durations</option>
+                                <option value="UNDER_30">Under 30 Mins</option>
+                                <option value="30_60">30 Mins - 1 Hour</option>
+                                <option value="OVER_60">Over 1 Hour</option>
+                                <option value="OVER_120">Over 2 Hours</option>
+                            </select>
+                        </div>
 
 
 
-                <div className="flex flex-col gap-4 mb-6">
-
-
-                    {/* Status Filters based on Workflow */}
-                    <div className="flex items-center gap-2 overflow-x-auto">
-
-                        {/* 1. STAGING WORKFLOW FILTERS (or Default ALL) */}
-                        {(dbWorkflow === 'STAGING' || dbWorkflow === 'ALL') && viewMode !== 'approvals' && (
-                            <>
-                                <button onClick={() => navigateToDatabase('ALL')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${!statusFilter || statusFilter === 'ALL' ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-white text-slate-500 border-slate-200'}`}><Filter size={12} /> All</button>
-                                <button onClick={() => navigateToDatabase('DRAFT')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'DRAFT' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300'}`}><Edit3 size={12} /> Drafts</button>
-                                <button onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'STAGING_VERIFICATION_PENDING' ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-white text-slate-500 border-slate-200 hover:border-yellow-300'}`}><Clock size={12} /> Staging Pending</button>
-                                {/* Show Locked in Staging so they can see what they finished */}
-                                <button onClick={() => navigateToDatabase('LOCKED')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOCKED' ? 'bg-slate-600 text-white border-slate-600' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}><Lock size={12} /> Ready for Loading</button>
-                            </>
-                        )}
-
-                        {/* 2. LOADING WORKFLOW FILTERS */}
-                        {dbWorkflow === 'LOADING' && viewMode !== 'approvals' && (
-                            <div className="flex items-center gap-2 overflow-x-auto">
-                                <button onClick={() => navigateToDatabase('ALL')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${!statusFilter || statusFilter === 'ALL' ? 'bg-orange-100 text-orange-700 border-orange-200' : 'bg-white text-slate-500 border-slate-200'}`}><Filter size={12} /> All</button>
-                                <button onClick={() => navigateToDatabase('LOCKED')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOCKED' ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-slate-500 border-slate-200 hover:border-orange-300'}`}><Lock size={12} /> Ready to Load</button>
-                                <button onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOADING_VERIFICATION_PENDING' ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-white text-slate-500 border-slate-200 hover:border-yellow-300'}`}><Clock size={12} /> Loading Pending</button>
-                                <button onClick={() => navigateToDatabase('COMPLETED')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'COMPLETED' ? 'bg-green-600 text-white border-green-600' : 'bg-white text-slate-500 border-slate-200 hover:border-green-300'}`}><CheckCircle size={12} /> Completed</button>
-                            </div>
-                        )}
-
-                        {/* SHIFT LEAD DEDICATED FILTERS */}
-                        {(viewMode === 'approvals' || dbWorkflow === 'APPROVALS') && (
-                            <div className="flex items-center gap-2 overflow-x-auto">
-                                <button onClick={() => navigateToDatabase('ALL', 'APPROVALS')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${!statusFilter || statusFilter === 'ALL' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-white text-slate-500 border-slate-200'}`}><Filter size={12} /> All Approvals</button>
-                                <button onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING', 'APPROVALS')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'STAGING_VERIFICATION_PENDING' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300'}`}><ClipboardList size={12} /> Staging Approval</button>
-                                <button onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING', 'APPROVALS')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOADING_VERIFICATION_PENDING' ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-slate-500 border-slate-200 hover:border-orange-300'}`}><Truck size={12} /> Loading Approval</button>
+                        {/* NEW: Database (Workflow) Filter - Replaces Tabs */}
+                        {viewMode !== 'approvals' && (
+                            <div className="flex items-center gap-2">
+                                <Database size={18} className="text-slate-500" />
+                                <span className="text-sm font-bold text-slate-700">Database:</span>
+                                <select
+                                    className="p-1.5 text-sm border border-slate-300 rounded hover:border-blue-400 focus:border-blue-500 outline-none bg-white font-bold text-slate-700"
+                                    value={dbWorkflow}
+                                    onChange={(e) => {
+                                        const val = e.target.value as any;
+                                        setDbWorkflow(val);
+                                        navigateToDatabase(val === 'ALL' ? 'ALL' : 'ALL', val);
+                                    }}
+                                >
+                                    <option value="ALL">All Databases</option>
+                                    <option value="STAGING">Staging Workflow</option>
+                                    <option value="LOADING">Loading Workflow</option>
+                                    <option value="APPROVALS">Shift Lead View</option>
+                                </select>
                             </div>
                         )}
                     </div>
 
-                    {(searchTerm || statusFilter) && (
-                        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg flex items-center justify-between animate-fade-in">
-                            <div className="flex items-center gap-2">
-                                <Search size={16} className="text-blue-600" />
-                                <span className="text-sm text-blue-900 font-medium">Filtering by Status: <span className="font-bold">{statusFilter || 'ALL'}</span> {searchTerm && <>and Search: <span className="font-bold">"{searchTerm}"</span></>}</span>
-                            </div>
-                            <button onClick={() => {
-                                const newUrl = new URL(window.location.href);
-                                newUrl.searchParams.delete('status');
-                                window.history.pushState({}, '', newUrl.toString());
-                                window.location.reload();
-                            }} className="text-xs text-blue-600 hover:text-blue-800 font-bold underline px-2">Clear</button>
-                        </div>
-                    )}
 
-                    <div className="overflow-hidden rounded-lg border border-slate-200 shadow-sm bg-white overflow-x-auto">
-                        <div className="min-w-[1600px]">
-                            {dbViewMode === 'details' ? (
-                                <div className="grid grid-cols-[100px_100px_120px_120px_120px_180px_180px_180px_180px_220px_80px] bg-slate-800 text-white font-bold text-xs uppercase divide-x divide-slate-700 border-b border-slate-600">
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('id')}>ID</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('date')}>Date</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('supervisorName')}>Staging SV</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('loadingSvName')}>Loading SV</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('createdBy')}>Created By</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('createdAt')}>Created At</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('stagingApprovedBy')}>Stg Appr By</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('stagingApprovedAt')}>Stg Appr At</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('loadingApprovedBy')}>Ldg Appr By</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('status')}>Status</div>
-                                    <div className="p-4 text-center">Actions</div>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-[100px_120px_180px_180px_180px_180px_180px_100px_80px] bg-slate-900 text-blue-100 font-bold text-xs uppercase divide-x divide-slate-800 border-b border-slate-700">
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('id')}>ID</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('date')}>Date</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('createdAt')}>Created At</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('stagingApprovedAt')}>Staging Verified</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('loadingApprovedAt')}>Loading Verified</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('completedAt')}>Completed At</div>
-                                    <div className="p-4">Process Duration</div>
-                                    <div className="p-4 cursor-pointer" onClick={() => handleSort('status')}>Status</div>
-                                    <div className="p-4 text-center">Actions</div>
+
+                    <div className="flex flex-col gap-4 mb-6">
+
+
+                        {/* Status Filters based on Workflow */}
+                        <div className="flex items-center gap-2 overflow-x-auto">
+
+                            {/* 1. STAGING WORKFLOW FILTERS (or Default ALL) */}
+                            {(dbWorkflow === 'STAGING' || dbWorkflow === 'ALL') && viewMode !== 'approvals' && (
+                                <>
+                                    <button onClick={() => navigateToDatabase('ALL')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${!statusFilter || statusFilter === 'ALL' ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-white text-slate-500 border-slate-200'}`}><Filter size={12} /> All</button>
+                                    <button onClick={() => navigateToDatabase('DRAFT')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'DRAFT' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300'}`}><Edit3 size={12} /> Drafts</button>
+                                    <button onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'STAGING_VERIFICATION_PENDING' ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-white text-slate-500 border-slate-200 hover:border-yellow-300'}`}><Clock size={12} /> Staging Pending</button>
+                                    {/* Show Locked in Staging so they can see what they finished */}
+                                    <button onClick={() => navigateToDatabase('LOCKED')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOCKED' ? 'bg-slate-600 text-white border-slate-600' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}><Lock size={12} /> Ready for Loading</button>
+                                </>
+                            )}
+
+                            {/* 2. LOADING WORKFLOW FILTERS */}
+                            {dbWorkflow === 'LOADING' && viewMode !== 'approvals' && (
+                                <div className="flex items-center gap-2 overflow-x-auto">
+                                    <button onClick={() => navigateToDatabase('ALL')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${!statusFilter || statusFilter === 'ALL' ? 'bg-orange-100 text-orange-700 border-orange-200' : 'bg-white text-slate-500 border-slate-200'}`}><Filter size={12} /> All</button>
+                                    <button onClick={() => navigateToDatabase('LOCKED')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOCKED' ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-slate-500 border-slate-200 hover:border-orange-300'}`}><Lock size={12} /> Ready to Load</button>
+                                    <button onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOADING_VERIFICATION_PENDING' ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-white text-slate-500 border-slate-200 hover:border-yellow-300'}`}><Clock size={12} /> Loading Pending</button>
+                                    <button onClick={() => navigateToDatabase('COMPLETED')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'COMPLETED' ? 'bg-green-600 text-white border-green-600' : 'bg-white text-slate-500 border-slate-200 hover:border-green-300'}`}><CheckCircle size={12} /> Completed</button>
                                 </div>
                             )}
 
-                            <div className="divide-y divide-slate-100">
-                                {filteredSheets.length > 0 ? filteredSheets.map((s) => (
-                                    dbViewMode === 'details' ? (
-                                        <div key={s.id} className={`grid grid-cols-[100px_100px_120px_120px_120px_180px_180px_180px_180px_220px_80px] items-center text-sm border-l-4 transition-all ${s.status === 'STAGING_VERIFICATION_PENDING' ? 'bg-blue-50/50 border-l-blue-500 hover:bg-blue-100' : s.status === 'LOADING_VERIFICATION_PENDING' ? 'bg-orange-50/50 border-l-orange-500 hover:bg-orange-100' : s.status === 'COMPLETED' ? 'bg-green-50/30 border-l-green-600 hover:bg-green-100' : 'bg-white border-l-transparent hover:bg-slate-50'
-                                            }`}>
-                                            <div className="p-4 font-mono font-bold text-blue-600">{s.id}</div>
-                                            <div className="p-4">{s.date}</div>
-                                            <div className="p-4 truncate">{resolveUserName(s.supervisorName, s.createdBy)}</div>
-                                            <div className="p-4 truncate">{resolveUserName(s.loadingSvName, s.completedBy) || '-'}</div>
-                                            <div className="p-4 truncate text-slate-500">{s.createdBy || '-'}</div>
-                                            <div className="p-4 text-xs text-slate-500 font-mono">{s.createdAt ? new Date(s.createdAt).toLocaleString() : '-'}</div>
-                                            <div className="p-4 truncate text-emerald-600">{s.stagingApprovedBy || '-'}</div>
-                                            <div className="p-4 text-xs text-slate-500 font-mono">{s.stagingApprovedAt ? new Date(s.stagingApprovedAt).toLocaleString() : '-'}</div>
-                                            <div className="p-4 truncate text-orange-600">{s.loadingApprovedBy || '-'}</div>
-                                            <div className="p-4">
-                                                {/* Enhanced Station Pipeline Visualization */}
-                                                <div className="flex flex-col gap-1 w-full max-w-[200px]">
-                                                    <div className="flex items-center justify-between relative">
-                                                        {/* Connecting Line */}
-                                                        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -z-10"></div>
-                                                        <div className={`absolute top-1/2 left-0 h-0.5 bg-blue-500 -z-10 transition-all duration-500`} style={{ width: s.status === 'COMPLETED' ? '100%' : s.status === 'LOADING_VERIFICATION_PENDING' ? '75%' : s.status === 'LOCKED' ? '50%' : s.status === 'STAGING_VERIFICATION_PENDING' ? '25%' : '0%' }}></div>
+                            {/* SHIFT LEAD DEDICATED FILTERS */}
+                            {(viewMode === 'approvals' || dbWorkflow === 'APPROVALS') && (
+                                <div className="flex items-center gap-2 overflow-x-auto">
+                                    <button onClick={() => navigateToDatabase('ALL', 'APPROVALS')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${!statusFilter || statusFilter === 'ALL' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-white text-slate-500 border-slate-200'}`}><Filter size={12} /> All Approvals</button>
+                                    <button onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING', 'APPROVALS')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'STAGING_VERIFICATION_PENDING' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300'}`}><ClipboardList size={12} /> Staging Approval</button>
+                                    <button onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING', 'APPROVALS')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${statusFilter === 'LOADING_VERIFICATION_PENDING' ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-slate-500 border-slate-200 hover:border-orange-300'}`}><Truck size={12} /> Loading Approval</button>
+                                </div>
+                            )}
+                        </div>
 
-                                                        {/* Station 1: Draft/Start */}
-                                                        <div className={`relative group`}>
-                                                            <div className={`w-3 h-3 rounded-full border-2 ${s.status !== 'DRAFT' ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-400'}`}></div>
-                                                            <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Start</span>
-                                                        </div>
+                        {(searchTerm || statusFilter) && (
+                            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg flex items-center justify-between animate-fade-in">
+                                <div className="flex items-center gap-2">
+                                    <Search size={16} className="text-blue-600" />
+                                    <span className="text-sm text-blue-900 font-medium">Filtering by Status: <span className="font-bold">{statusFilter || 'ALL'}</span> {searchTerm && <>and Search: <span className="font-bold">"{searchTerm}"</span></>}</span>
+                                </div>
+                                <button onClick={() => {
+                                    const newUrl = new URL(window.location.href);
+                                    newUrl.searchParams.delete('status');
+                                    window.history.pushState({}, '', newUrl.toString());
+                                    window.location.reload();
+                                }} className="text-xs text-blue-600 hover:text-blue-800 font-bold underline px-2">Clear</button>
+                            </div>
+                        )}
 
-                                                        {/* Station 2: Staging Check (Shift Lead) */}
-                                                        <div className={`relative group`}>
-                                                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${['LOCKED', 'LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-green-500 border-green-500 text-white' : s.status === 'STAGING_VERIFICATION_PENDING' ? 'bg-white border-blue-500 text-blue-500 animate-pulse' : 'bg-white border-slate-300 text-slate-300'}`}>
-                                                                {['LOCKED', 'LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? <CheckCircle size={10} /> : <ClipboardList size={8} strokeWidth={3} />}
+                        <div className="overflow-hidden rounded-lg border border-slate-200 shadow-sm bg-white overflow-x-auto">
+                            <div className="min-w-[1600px]">
+                                {dbViewMode === 'details' ? (
+                                    <div className="grid grid-cols-[100px_100px_120px_120px_120px_180px_180px_180px_180px_220px_80px] bg-slate-800 text-white font-bold text-xs uppercase divide-x divide-slate-700 border-b border-slate-600">
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('id')}>ID</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('date')}>Date</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('supervisorName')}>Staging SV</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('loadingSvName')}>Loading SV</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('createdBy')}>Created By</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('createdAt')}>Created At</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('stagingApprovedBy')}>Stg Appr By</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('stagingApprovedAt')}>Stg Appr At</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('loadingApprovedBy')}>Ldg Appr By</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('status')}>Status</div>
+                                        <div className="p-4 text-center">Actions</div>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-[100px_120px_180px_180px_180px_180px_180px_100px_80px] bg-slate-900 text-blue-100 font-bold text-xs uppercase divide-x divide-slate-800 border-b border-slate-700">
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('id')}>ID</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('date')}>Date</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('createdAt')}>Created At</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('stagingApprovedAt')}>Staging Verified</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('loadingApprovedAt')}>Loading Verified</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('completedAt')}>Completed At</div>
+                                        <div className="p-4">Process Duration</div>
+                                        <div className="p-4 cursor-pointer" onClick={() => handleSort('status')}>Status</div>
+                                        <div className="p-4 text-center">Actions</div>
+                                    </div>
+                                )}
+
+                                <div className="divide-y divide-slate-100">
+                                    {filteredSheets.length > 0 ? filteredSheets.map((s) => (
+                                        dbViewMode === 'details' ? (
+                                            <div key={s.id} className={`grid grid-cols-[100px_100px_120px_120px_120px_180px_180px_180px_180px_220px_80px] items-center text-sm border-l-4 transition-all ${s.status === 'STAGING_VERIFICATION_PENDING' ? 'bg-blue-50/50 border-l-blue-500 hover:bg-blue-100' : s.status === 'LOADING_VERIFICATION_PENDING' ? 'bg-orange-50/50 border-l-orange-500 hover:bg-orange-100' : s.status === 'COMPLETED' ? 'bg-green-50/30 border-l-green-600 hover:bg-green-100' : 'bg-white border-l-transparent hover:bg-slate-50'
+                                                }`}>
+                                                <div className="p-4 font-mono font-bold text-blue-600">{s.id}</div>
+                                                <div className="p-4">{s.date}</div>
+                                                <div className="p-4 truncate">{resolveUserName(s.supervisorName, s.createdBy)}</div>
+                                                <div className="p-4 truncate">{resolveUserName(s.loadingSvName, s.completedBy) || '-'}</div>
+                                                <div className="p-4 truncate text-slate-500">{s.createdBy || '-'}</div>
+                                                <div className="p-4 text-xs text-slate-500 font-mono">{s.createdAt ? new Date(s.createdAt).toLocaleString() : '-'}</div>
+                                                <div className="p-4 truncate text-emerald-600">{s.stagingApprovedBy || '-'}</div>
+                                                <div className="p-4 text-xs text-slate-500 font-mono">{s.stagingApprovedAt ? new Date(s.stagingApprovedAt).toLocaleString() : '-'}</div>
+                                                <div className="p-4 truncate text-orange-600">{s.loadingApprovedBy || '-'}</div>
+                                                <div className="p-4">
+                                                    {/* Enhanced Station Pipeline Visualization */}
+                                                    <div className="flex flex-col gap-1 w-full max-w-[200px]">
+                                                        <div className="flex items-center justify-between relative">
+                                                            {/* Connecting Line */}
+                                                            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -z-10"></div>
+                                                            <div className={`absolute top-1/2 left-0 h-0.5 bg-blue-500 -z-10 transition-all duration-500`} style={{ width: s.status === 'COMPLETED' ? '100%' : s.status === 'LOADING_VERIFICATION_PENDING' ? '75%' : s.status === 'LOCKED' ? '50%' : s.status === 'STAGING_VERIFICATION_PENDING' ? '25%' : '0%' }}></div>
+
+                                                            {/* Station 1: Draft/Start */}
+                                                            <div className={`relative group`}>
+                                                                <div className={`w-3 h-3 rounded-full border-2 ${s.status !== 'DRAFT' ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-400'}`}></div>
+                                                                <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Start</span>
                                                             </div>
-                                                            <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Check</span>
-                                                        </div>
 
-                                                        {/* Station 3: Ready/Load (Locked) */}
-                                                        <div className={`relative group`}>
-                                                            {/* "Present to save data" means active. "Locked" status = Ready to load. */}
-                                                            <div className={`w-3 h-3 rounded text-[8px] flex items-center justify-center border ${['LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-orange-500 border-orange-500 text-white' : s.status === 'LOCKED' ? 'bg-orange-600 border-orange-600 text-white shadow-sm' : 'bg-white border-slate-300 text-slate-300'}`}>
-                                                                <Plus size={8} strokeWidth={4} />
+                                                            {/* Station 2: Staging Check (Shift Lead) */}
+                                                            <div className={`relative group`}>
+                                                                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${['LOCKED', 'LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-green-500 border-green-500 text-white' : s.status === 'STAGING_VERIFICATION_PENDING' ? 'bg-white border-blue-500 text-blue-500 animate-pulse' : 'bg-white border-slate-300 text-slate-300'}`}>
+                                                                    {['LOCKED', 'LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? <CheckCircle size={10} /> : <ClipboardList size={8} strokeWidth={3} />}
+                                                                </div>
+                                                                <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Check</span>
                                                             </div>
-                                                            <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Ready</span>
-                                                        </div>
 
-                                                        {/* Station 4: Loading Check (Shift Lead) */}
-                                                        <div className={`relative group`}>
-                                                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${s.status === 'COMPLETED' ? 'bg-green-600 border-green-600 text-white' : s.status === 'LOADING_VERIFICATION_PENDING' ? 'bg-white border-orange-500 text-orange-500 animate-pulse' : 'bg-white border-slate-300 text-slate-300'}`}>
-                                                                {s.status === 'COMPLETED' ? <CheckCircle size={10} /> : <Truck size={8} strokeWidth={3} />}
+                                                            {/* Station 3: Ready/Load (Locked) */}
+                                                            <div className={`relative group`}>
+                                                                {/* "Present to save data" means active. "Locked" status = Ready to load. */}
+                                                                <div className={`w-3 h-3 rounded text-[8px] flex items-center justify-center border ${['LOADING_VERIFICATION_PENDING', 'COMPLETED'].includes(s.status) ? 'bg-orange-500 border-orange-500 text-white' : s.status === 'LOCKED' ? 'bg-orange-600 border-orange-600 text-white shadow-sm' : 'bg-white border-slate-300 text-slate-300'}`}>
+                                                                    <Plus size={8} strokeWidth={4} />
+                                                                </div>
+                                                                <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Ready</span>
                                                             </div>
-                                                            <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Verify</span>
-                                                        </div>
 
-                                                        {/* Station 5: End */}
-                                                        <div className={`relative group`}>
-                                                            <div className={`w-3 h-3 rounded-full border-2 ${s.status === 'COMPLETED' ? 'bg-green-600 border-green-600' : 'bg-white border-slate-300'}`}></div>
-                                                            <span className="absolute -bottom-4 right-0 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Done</span>
+                                                            {/* Station 4: Loading Check (Shift Lead) */}
+                                                            <div className={`relative group`}>
+                                                                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${s.status === 'COMPLETED' ? 'bg-green-600 border-green-600 text-white' : s.status === 'LOADING_VERIFICATION_PENDING' ? 'bg-white border-orange-500 text-orange-500 animate-pulse' : 'bg-white border-slate-300 text-slate-300'}`}>
+                                                                    {s.status === 'COMPLETED' ? <CheckCircle size={10} /> : <Truck size={8} strokeWidth={3} />}
+                                                                </div>
+                                                                <span className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Verify</span>
+                                                            </div>
+
+                                                            {/* Station 5: End */}
+                                                            <div className={`relative group`}>
+                                                                <div className={`w-3 h-3 rounded-full border-2 ${s.status === 'COMPLETED' ? 'bg-green-600 border-green-600' : 'bg-white border-slate-300'}`}></div>
+                                                                <span className="absolute -bottom-4 right-0 text-[8px] font-bold text-slate-500 uppercase whitespace-nowrap">Done</span>
+                                                            </div>
                                                         </div>
+                                                        <div className="h-2"></div>
                                                     </div>
-                                                    <div className="h-2"></div>
+                                                    <span className="text-[10px] font-bold text-slate-500 mt-1 block uppercase">{s.status.replace(/_/g, ' ').replace('VERIFICATION PENDING', 'VERIFY')}</span>
                                                 </div>
-                                                <span className="text-[10px] font-bold text-slate-500 mt-1 block uppercase">{s.status.replace(/_/g, ' ').replace('VERIFICATION PENDING', 'VERIFY')}</span>
+                                                <div className="p-4 flex gap-2 justify-center">
+                                                    <button onClick={() => onViewSheet(s)} className="text-blue-600 hover:text-blue-800" title="View Details"><Eye size={18} /></button>
+                                                    {isAdmin && (
+                                                        <>
+                                                            <button onClick={(e) => handleDelete(e, s.id)} className="text-red-600 hover:text-red-800" title="Delete Sheet"><Trash2 size={18} /></button>
+                                                            {(s.status === 'LOCKED' || s.status === 'COMPLETED' || s.status.includes('PENDING')) && (
+                                                                <button onClick={(e) => handleUnlockSheet(e, s)} className="text-amber-600 hover:text-amber-800" title="Unlock / Revert Status"><LockOpen size={18} /></button>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="p-4 flex gap-2 justify-center">
-                                                <button onClick={() => onViewSheet(s)} className="text-blue-600 hover:text-blue-800" title="View Details"><Eye size={18} /></button>
-                                                {isAdmin && (
-                                                    <>
-                                                        <button onClick={(e) => handleDelete(e, s.id)} className="text-red-600 hover:text-red-800" title="Delete Sheet"><Trash2 size={18} /></button>
-                                                        {(s.status === 'LOCKED' || s.status === 'COMPLETED' || s.status.includes('PENDING')) && (
-                                                            <button onClick={(e) => handleUnlockSheet(e, s)} className="text-amber-600 hover:text-amber-800" title="Unlock / Revert Status"><LockOpen size={18} /></button>
-                                                        )}
-                                                    </>
-                                                )}
+                                        ) : (
+                                            // DURATION VIEW ROW
+                                            <div key={s.id} className="grid grid-cols-[100px_120px_180px_180px_180px_180px_180px_100px_80px] items-center text-sm text-blue-100 hover:bg-slate-800/50 border-b border-slate-800">
+                                                <div className="p-4 font-mono font-bold text-blue-600">{s.id}</div>
+                                                <div className="p-4">{s.date}</div>
+                                                <div className="p-4 text-xs font-mono">{s.createdAt ? new Date(s.createdAt).toLocaleString() : '-'}</div>
+                                                <div className="p-4 text-xs font-mono text-emerald-700">{s.stagingApprovedAt ? new Date(s.stagingApprovedAt).toLocaleString() : '-'}</div>
+                                                <div className="p-4 text-xs font-mono text-orange-700">{s.loadingApprovedAt ? new Date(s.loadingApprovedAt).toLocaleString() : '-'}</div>
+                                                <div className="p-4 text-xs font-mono font-bold">{s.completedAt ? new Date(s.completedAt).toLocaleString() : '-'}</div>
+                                                <div className="p-4 text-xs font-mono bg-slate-50 text-slate-500">
+                                                    {s.createdAt && s.completedAt ?
+                                                        (() => {
+                                                            const diff = new Date(s.completedAt).getTime() - new Date(s.createdAt).getTime();
+                                                            const hrs = Math.floor(diff / 3600000);
+                                                            const mins = Math.floor((diff % 3600000) / 60000);
+                                                            return `${hrs}h ${mins}m`;
+                                                        })()
+                                                        : '-'
+                                                    }
+                                                </div>
+                                                <div className="p-4"><span className="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold">{s.status}</span></div>
+                                                <div className="p-4 flex justify-center gap-2">
+                                                    <button onClick={() => onViewSheet(s)} className="text-blue-600 hover:bg-blue-50 p-1 rounded"><Eye size={16} /></button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        // DURATION VIEW ROW
-                                        <div key={s.id} className="grid grid-cols-[100px_120px_180px_180px_180px_180px_180px_100px_80px] items-center text-sm text-blue-100 hover:bg-slate-800/50 border-b border-slate-800">
-                                            <div className="p-4 font-mono font-bold text-blue-600">{s.id}</div>
-                                            <div className="p-4">{s.date}</div>
-                                            <div className="p-4 text-xs font-mono">{s.createdAt ? new Date(s.createdAt).toLocaleString() : '-'}</div>
-                                            <div className="p-4 text-xs font-mono text-emerald-700">{s.stagingApprovedAt ? new Date(s.stagingApprovedAt).toLocaleString() : '-'}</div>
-                                            <div className="p-4 text-xs font-mono text-orange-700">{s.loadingApprovedAt ? new Date(s.loadingApprovedAt).toLocaleString() : '-'}</div>
-                                            <div className="p-4 text-xs font-mono font-bold">{s.completedAt ? new Date(s.completedAt).toLocaleString() : '-'}</div>
-                                            <div className="p-4 text-xs font-mono bg-slate-50 text-slate-500">
-                                                {s.createdAt && s.completedAt ?
-                                                    (() => {
-                                                        const diff = new Date(s.completedAt).getTime() - new Date(s.createdAt).getTime();
-                                                        const hrs = Math.floor(diff / 3600000);
-                                                        const mins = Math.floor((diff % 3600000) / 60000);
-                                                        return `${hrs}h ${mins}m`;
-                                                    })()
-                                                    : '-'
-                                                }
-                                            </div>
-                                            <div className="p-4"><span className="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold">{s.status}</span></div>
-                                            <div className="p-4 flex justify-center gap-2">
-                                                <button onClick={() => onViewSheet(s)} className="text-blue-600 hover:bg-blue-50 p-1 rounded"><Eye size={16} /></button>
-                                            </div>
-                                        </div>
-                                    )
-                                )) : <div className="p-12 text-center text-slate-400 italic">No records found.</div>}
+                                        )
+                                    )) : <div className="p-12 text-center text-slate-400 italic">No records found.</div>}
+                                </div>
+                            </div>
+                        </div>
+                        {/* PRINT ONLY: Detailed Filter Flow Legend */}
+                        <div className="hidden print:block mt-8 pt-8 border-t border-slate-300">
+                            <h3 className="font-bold text-slate-800 text-sm uppercase mb-4">Detailed Filter Flow Reference</h3>
+                            <div className="grid grid-cols-3 gap-8 text-xs text-slate-600">
+                                <div>
+                                    <h4 className="font-bold text-blue-600 mb-2">1. Staging Workflow</h4>
+                                    <ul className="space-y-1">
+                                        <li>• <b>Drafts:</b> Initial creation. Editable.</li>
+                                        <li>• <b>Pending:</b> Submitted for Staging Approval.</li>
+                                        <li>• <b>Ready:</b> Approved & Locked. Ready for Loading Team.</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-orange-600 mb-2">2. Loading Workflow</h4>
+                                    <ul className="space-y-1">
+                                        <li>• <b>Ready to Load:</b> Picked up from Staging.</li>
+                                        <li>• <b>Pending:</b> Submitted for Loading Approval.</li>
+                                        <li>• <b>Completed:</b> Finalized. No further edits.</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-purple-600 mb-2">3. Shift Lead Database</h4>
+                                    <ul className="space-y-1">
+                                        <li>• <b>All Approvals:</b> Master list of checks needed.</li>
+                                        <li>• <b>Staging Appr:</b> Drafts waiting for sign-off.</li>
+                                        <li>• <b>Loading Appr:</b> Loads waiting for sign-off.</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    {/* PRINT ONLY: Detailed Filter Flow Legend */}
-                    <div className="hidden print:block mt-8 pt-8 border-t border-slate-300">
-                        <h3 className="font-bold text-slate-800 text-sm uppercase mb-4">Detailed Filter Flow Reference</h3>
-                        <div className="grid grid-cols-3 gap-8 text-xs text-slate-600">
-                            <div>
-                                <h4 className="font-bold text-blue-600 mb-2">1. Staging Workflow</h4>
-                                <ul className="space-y-1">
-                                    <li>• <b>Drafts:</b> Initial creation. Editable.</li>
-                                    <li>• <b>Pending:</b> Submitted for Staging Approval.</li>
-                                    <li>• <b>Ready:</b> Approved & Locked. Ready for Loading Team.</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-orange-600 mb-2">2. Loading Workflow</h4>
-                                <ul className="space-y-1">
-                                    <li>• <b>Ready to Load:</b> Picked up from Staging.</li>
-                                    <li>• <b>Pending:</b> Submitted for Loading Approval.</li>
-                                    <li>• <b>Completed:</b> Finalized. No further edits.</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-purple-600 mb-2">3. Shift Lead Database</h4>
-                                <ul className="space-y-1">
-                                    <li>• <b>All Approvals:</b> Master list of checks needed.</li>
-                                    <li>• <b>Staging Appr:</b> Drafts waiting for sign-off.</li>
-                                    <li>• <b>Loading Appr:</b> Loads waiting for sign-off.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </div >
             </div >
-        </div >
-    );
-}
+        );
+    }
 
-return <div>Unknown View Mode</div>;
+    return <div>Unknown View Mode</div>;
 };
