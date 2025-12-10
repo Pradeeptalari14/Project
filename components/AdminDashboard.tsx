@@ -352,15 +352,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 <div><h3 className="font-bold text-slate-700">Staging Overview</h3><div className="text-xs text-slate-400">{stats.staging.staff} Staff</div></div>
                             </div>
                             <div className="grid grid-cols-3 gap-2"> {/* Changed to 3 cols for Locked */}
-                                <div onClick={() => navigateToDatabase('DRAFT', 'STAGING')} className="p-3 bg-blue-50/50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                                <div onClick={() => onNavigate && onNavigate('staging', 'DRAFT')} className="p-3 bg-blue-50/50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
                                     <span className="text-[10px] text-blue-500 uppercase font-bold block mb-1">Drafts</span>
                                     <span className="text-xl font-bold text-blue-700">{stats.staging.drafts}</span>
                                 </div>
-                                <div onClick={() => navigateToDatabase('STAGING_VERIFICATION_PENDING', 'STAGING')} className="p-3 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors">
+                                <div onClick={() => onNavigate && onNavigate('staging', 'STAGING_VERIFICATION_PENDING')} className="p-3 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors">
                                     <span className="text-[10px] text-yellow-600 uppercase font-bold block mb-1">Pending</span>
                                     <span className="text-xl font-bold text-yellow-700">{stats.staging.pending}</span>
                                 </div>
-                                <div onClick={() => navigateToDatabase('LOCKED', 'STAGING')} className="p-3 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors">
+                                <div onClick={() => onNavigate && onNavigate('staging', 'LOCKED')} className="p-3 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors">
                                     <span className="text-[10px] text-orange-600 uppercase font-bold block mb-1">Locked</span>
                                     <span className="text-xl font-bold text-orange-700">{stats.staging.locked}</span>
                                 </div>
@@ -375,14 +375,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 <div><h3 className="font-bold text-slate-700">Loading Overview</h3><div className="text-xs text-slate-400">{stats.loading.staff} Staff</div></div>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
-                                <div onClick={() => navigateToDatabase('LOCKED', 'LOADING')} className="p-2 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors flex items-center justify-between group">
+                                <div onClick={() => onNavigate && onNavigate('loading', 'LOCKED')} className="p-2 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors flex items-center justify-between group">
                                     <div>
                                         <span className="text-[10px] text-orange-600 uppercase font-bold block mb-1">Ready to Load</span>
                                         <span className="text-lg font-bold text-orange-700">{stats.loading.locked}</span>
                                     </div>
                                     <Lock className="text-orange-300 group-hover:text-orange-500 transition-colors" size={24} />
                                 </div>
-                                <div onClick={() => navigateToDatabase('LOADING_VERIFICATION_PENDING', 'LOADING')} className="p-2 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors flex items-center justify-between group">
+                                <div onClick={() => onNavigate && onNavigate('loading', 'LOADING_VERIFICATION_PENDING')} className="p-2 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors flex items-center justify-between group">
                                     <div>
                                         <span className="text-[10px] text-yellow-600 uppercase font-bold block mb-1">Pending</span>
                                         <span className="text-lg font-bold text-yellow-700">{stats.loading.pending}</span>
