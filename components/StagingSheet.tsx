@@ -2,6 +2,8 @@ import {
     Save, Lock, Printer, ArrowLeft, Plus, Calendar, MapPin, User,
     FileText, CheckCircle, AlertTriangle, ImageIcon, Trash2, Truck, UserCheck
 } from 'lucide-react';
+import { useApp } from '../AppContext';
+import { Role, SheetStatus, SheetData } from '../types';
 import { IncidentModal } from './IncidentModal';
 
 interface Props {
