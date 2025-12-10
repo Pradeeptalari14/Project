@@ -13,7 +13,8 @@ import {
   Menu,
   Key,
   X,
-  Database
+  Database,
+  AlertTriangle
 } from 'lucide-react';
 
 interface LayoutProps {
