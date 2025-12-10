@@ -173,6 +173,9 @@ const App = () => {
             case 'loading-db':
                 return <AdminDashboard viewMode="loading-db" onViewSheet={(s) => handleViewSheet(s)} onNavigate={handleNavigate} />;
 
+            case 'approvals':
+                return <AdminDashboard viewMode="approvals" onViewSheet={(s) => handleViewSheet(s)} onNavigate={handleNavigate} />;
+
             case 'staging-editor':
                 return <StagingSheet
                     key={isCreatingNew ? 'new' : activeSheet?.id}

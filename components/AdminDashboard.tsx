@@ -410,24 +410,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 <div><h3 className="font-bold text-slate-700">Shift Lead</h3><div className="text-xs text-slate-400">{stats.approvals.staff} Leads</div></div>
                             </div>
                             <div className="space-y-3">
-                                <div onClick={() => {
-                                    const newUrl = new URL(window.location.href);
-                                    newUrl.searchParams.set('view', 'approvals'); // Explicitly go to Sidebar View
-                                    newUrl.searchParams.delete('workflow');
-                                    window.history.pushState({}, '', newUrl.toString());
-                                    setUrlTick(prev => prev + 1);
-                                }} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                                <div onClick={() => onNavigate && onNavigate('approvals')} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 hover:-translate-y-1 active:scale-95 transition-all duration-200">
                                     <span className="text-sm font-bold text-slate-700">Staging</span>
                                     <span className="text-sm text-slate-500">(Pending)</span>
                                     <span className="text-lg font-bold text-blue-700">{stats.approvals.staging}</span>
                                 </div>
-                                <div onClick={() => {
-                                    const newUrl = new URL(window.location.href);
-                                    newUrl.searchParams.set('view', 'approvals'); // Explicitly go to Sidebar View
-                                    newUrl.searchParams.delete('workflow');
-                                    window.history.pushState({}, '', newUrl.toString());
-                                    setUrlTick(prev => prev + 1);
-                                }} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors">
+                                <div onClick={() => onNavigate && onNavigate('approvals')} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 hover:-translate-y-1 active:scale-95 transition-all duration-200">
                                     <span className="text-sm font-bold text-slate-700">Loading</span>
                                     <span className="text-sm text-slate-500">(Pending)</span>
                                     <span className="text-lg font-bold text-orange-700">{stats.approvals.loading}</span>
