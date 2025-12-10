@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Save, Lock, Printer, ArrowLeft, Plus, Calendar, MapPin, User,
-    FileText, CheckCircle, AlertTriangle, ImageIcon, Trash2, Truck, UserCheck
+    FileText, CheckCircle, AlertTriangle, ImageIcon, Trash2, Truck, UserCheck, ClipboardList
 } from 'lucide-react';
 import { useApp } from '../AppContext';
 import { Role, SheetStatus, SheetData } from '../types';
@@ -444,6 +444,7 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
                         <input type="text" value={date} onChange={e => { setDate(e.target.value); setIsDirty(true); }} disabled={isLocked} className="w-full border border-slate-200 bg-slate-100 p-2.5 rounded-lg text-sm text-slate-600 outline-none cursor-not-allowed" />
                     </div>
                     <div>
+                        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1"><MapPin size={14} /> Destination</label>
                         <input type="text" value={destination} onChange={e => { setDestination(e.target.value); setIsDirty(true); }} disabled={isLocked} className="w-full border border-slate-200 bg-white p-2.5 rounded-lg text-sm text-slate-700 outline-none placeholder:text-slate-300" placeholder="Enter Destination" />
                     </div>
                     <div>
