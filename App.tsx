@@ -179,6 +179,9 @@ const App = () => {
             case 'approvals':
                 return <AdminDashboard viewMode="approvals" onViewSheet={(s) => handleViewSheet(s)} onNavigate={handleNavigate} />;
 
+            case 'incidents':
+                return <AdminDashboard viewMode="incidents" onViewSheet={(s) => handleViewSheet(s)} onNavigate={handleNavigate} />;
+
             case 'staging-editor':
                 return <StagingSheet
                     key={isCreatingNew ? 'new' : activeSheet?.id}
