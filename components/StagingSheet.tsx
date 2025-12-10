@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import {
     Save, Lock, Printer, ArrowLeft, Plus, Calendar, MapPin, User,
     FileText, CheckCircle, AlertTriangle, ImageIcon, Trash2, Truck, UserCheck
