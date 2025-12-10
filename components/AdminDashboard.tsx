@@ -812,7 +812,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                                 {inc.createdBy}
                                                 <div className="text-[10px] text-slate-400 mt-1">
                                                     Created: {new Date(inc.createdAt).toLocaleString()}
-                                                    {inc.occurredAt && (
+                                                    {inc.occurredAt && !isNaN(new Date(inc.occurredAt).getTime()) && (
                                                         <div className="text-rose-600 font-bold bg-rose-50 px-1 rounded w-fit mt-0.5">
                                                             Time: {new Date(inc.occurredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                         </div>

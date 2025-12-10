@@ -433,7 +433,7 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
             </div>
 
             {/* SCREEN FORM (Hidden in Preview) */}
-            <div className={`p - 4 md: p - 6 bg - slate - 50 / 50 border - b border - slate - 100 ${isPreview ? 'hidden' : 'block'} print: hidden`}>
+            <div className={`p - 4 md: p - 6 bg - slate - 50 border - b border - slate - 100 ${isPreview ? 'hidden' : 'block'} print: hidden`}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     <div>
                         <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1"><Calendar size={14} /> Shift</label>
@@ -511,8 +511,8 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
                 </div>
                 {!isLocked && (
                     <div className="mt-4 flex justify-center pb-4">
-                        <button onClick={handleAddItem} className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-6 py-3 rounded-lg transition-colors">
-                            <Plus size={16} /> Add Row
+                        <button onClick={handleAddItem} className="w-full flex items-center justify-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 py-3 rounded-lg transition-colors border-2 border-dashed border-blue-200 hover:border-blue-300">
+                            <Plus size={16} /> Add New Row
                         </button>
                     </div>
                 )}
