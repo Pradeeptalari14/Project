@@ -147,7 +147,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigat
             page="incidents"
             icon={AlertTriangle}
             label="Incidents"
-            roles={[Role.ADMIN, Role.SHIFT_LEAD]}
+            roles={[Role.ADMIN, Role.SHIFT_LEAD, Role.STAGING_SUPERVISOR, Role.LOADING_SUPERVISOR]}
           />
           <div className="pt-4 pb-2 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Administration</div>
           <NavItem

@@ -45,7 +45,7 @@ interface ViewConfig {
 
 // Forced HMR Rebuild v3
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onViewSheet, onNavigate, initialSearch = '' }) => {
-    const { users, approveUser, deleteUser, sheets, deleteSheet, register, resetPassword, currentUser, isLoading, updateSheet, incidents, resetSystemData } = useApp();
+    const { users, approveUser, deleteUser, sheets, deleteSheet, register, resetPassword, currentUser, isLoading, updateSheet, incidents, resetSystemData, updateIncident } = useApp();
 
     const [searchTerm, setSearchTerm] = useState(initialSearch);
     const [filterRole, setFilterRole] = useState<Role | 'ALL'>('ALL');
@@ -325,6 +325,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
     const showStaging = isAdmin || isShiftLead || currentUser?.role === Role.STAGING_SUPERVISOR;
     const showLoading = isAdmin || isShiftLead || currentUser?.role === Role.LOADING_SUPERVISOR;
     const showApprovals = isAdmin || isShiftLead;
+    const showIncidents = isAdmin || isShiftLead || currentUser?.role === Role.STAGING_SUPERVISOR || currentUser?.role === Role.LOADING_SUPERVISOR;
 
     // --- VIEW 1: ANALYTICS DASHBOARD ---
     if (viewMode === 'analytics') {
@@ -432,17 +433,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                 {/* ROW 3 & 4: Widgets */}
                 {/* ROW 3 & 4: Widgets */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Hide SLA and Incidents for Supervisors */}
-                    {showApprovals && (
-                        <>
-                            {userWidgets.includes('sla-monitor') && getWidgetDefinition('sla-monitor') && (
-                                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">SLA Compliance</h3>{React.createElement(getWidgetDefinition('sla-monitor')!.component)}</div>
-                            )}
-                            {userWidgets.includes('incident-list') && getWidgetDefinition('incident-list') && (
-                                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">Incidents</h3>{React.createElement(getWidgetDefinition('incident-list')!.component)}</div>
-                            )}
-                        </>
-                    )}
+                    {/* Hide SLA for Supervisors, but Show Incidents */}
+
+                    <>
+                        {showApprovals && userWidgets.includes('sla-monitor') && getWidgetDefinition('sla-monitor') && (
+                            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">SLA Compliance</h3>{React.createElement(getWidgetDefinition('sla-monitor')!.component)}</div>
+                        )}
+                        {showIncidents && userWidgets.includes('incident-list') && getWidgetDefinition('incident-list') && (
+                            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">Incidents</h3>{React.createElement(getWidgetDefinition('incident-list')!.component)}</div>
+                        )}
+                    </>
+
                 </div>
                 {
                     userWidgets.includes('staff-performance') && getWidgetDefinition('staff-performance') && (
