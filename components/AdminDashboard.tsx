@@ -439,9 +439,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                         {showApprovals && userWidgets.includes('sla-monitor') && getWidgetDefinition('sla-monitor') && (
                             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">SLA Compliance</h3>{React.createElement(getWidgetDefinition('sla-monitor')!.component)}</div>
                         )}
-                        {showIncidents && userWidgets.includes('incident-list') && getWidgetDefinition('incident-list') && (
-                            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">Incidents</h3>{React.createElement(getWidgetDefinition('incident-list')!.component)}</div>
-                        )}
+
                     </>
 
                 </div>
@@ -642,8 +640,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
 
     // --- VIEW 4: DATABASE PANEL (and SHIFT LEAD VIEW) ---
     // --- VIEW 3: DATABASE & APPROVALS & DEDICATED WORKFLOWS ---
-    // --- VIEW 5: INCIDENT CONTROL CENTER ---
-    if (viewMode === 'incidents') {
+    // --- VIEW 5: INCIDENT CONTROL CENTER (DISABLED) ---
+    if (viewMode === 'DISABLED_incidents') {
         const openIncidents = incidents.filter(i => i.status === 'OPEN').length;
         const criticalIncidents = incidents.filter(i => i.priority === 'CRITICAL' && i.status !== 'RESOLVED').length;
         const resolvedIncidents = incidents.filter(i => i.status === 'RESOLVED').length;
