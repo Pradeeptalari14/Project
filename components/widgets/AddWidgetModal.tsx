@@ -1,5 +1,5 @@
 import React from 'react';
-import { widgetRegistry } from './WidgetRegistry';
+import { WIDGET_METADATA } from './WidgetMetadata';
 import { Plus, X } from 'lucide-react';
 
 interface AddWidgetModalProps {
@@ -27,7 +27,7 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({ isOpen, onClose,
                 <div className="flex-1 overflow-y-auto p-5 space-y-6">
                     {/* Categories */}
                     {['Analytics', 'Score Card', 'Chart', 'List'].map(category => {
-                        const widgets = widgetRegistry.filter(w => w.category === category);
+                        const widgets = WIDGET_METADATA.filter(w => w.category === category);
                         if (widgets.length === 0) return null;
 
                         return (

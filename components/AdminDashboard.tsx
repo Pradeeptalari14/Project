@@ -16,9 +16,11 @@ import {
     Timer, TableProperties, CalendarRange, MapPin, User
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { widgetRegistry, getWidgetDefinition } from './widgets/WidgetRegistry';
+import { WIDGET_COMPONENTS } from './widgets/WidgetMap';
+import { getWidgetMeta } from './widgets/WidgetMetadata';
 import { AddWidgetModal } from './widgets/AddWidgetModal';
-
+import { SLAMonitorWidget } from './widgets/SLAMonitorWidget';
+import { UserWidgetConfig } from './widgets/types';
 // --- CONFIGURATION: VIEW FILTERS ---
 // Defines which statuses are visible in each workflow view.
 const VIEW_SCOPES: Record<string, SheetStatus[]> = {
@@ -442,7 +444,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
 
     // --- VIEW 1: ANALYTICS DASHBOARD ---
     if (viewMode === 'analytics') {
-        const sortedWidgets = userWidgets.map(id => getWidgetDefinition(id)).filter(w => w !== undefined);
+        const sortedWidgets = userWidgets.map(id => getWidgetMeta(id)).filter(w => w !== undefined);
         return (
             <div className="space-y-6 pb-20">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -545,20 +547,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
 
                 {/* ROW 3 & 4: Widgets */}
                 {/* ROW 3 & 4: Widgets */}
+                {/* ROW 3 & 4: Widgets */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Hide SLA for Supervisors, but Show Incidents */}
 
                     <>
-                        {showApprovals && userWidgets.includes('sla-monitor') && getWidgetDefinition('sla-monitor') && (
-                            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">SLA Compliance</h3>{React.createElement(getWidgetDefinition('sla-monitor')!.component)}</div>
+                        {showApprovals && userWidgets.includes('sla-monitor') && WIDGET_COMPONENTS['sla-monitor'] && (
+                            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">SLA Compliance</h3>{React.createElement(WIDGET_COMPONENTS['sla-monitor'])}</div>
                         )}
 
                     </>
 
                 </div>
                 {
-                    userWidgets.includes('staff-performance') && getWidgetDefinition('staff-performance') && (
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">Staff Performance</h3>{React.createElement(getWidgetDefinition('staff-performance')!.component)}</div>
+                    userWidgets.includes('staff-performance') && WIDGET_COMPONENTS['staff-performance'] && (
+                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">Staff Performance</h3>{React.createElement(WIDGET_COMPONENTS['staff-performance'])}</div>
                     )
                 }
 
