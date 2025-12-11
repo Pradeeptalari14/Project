@@ -6,6 +6,8 @@
 
 This contains everything you need to run your app locally.
 
+> **Last Updated:** 2025-12-11T08:55:01+05:30 (Tracer Bullet verify)
+
 View your app in AI Studio: https://ai.studio/apps/drive/150pW1FN4G6cVsOj-Yiwx6_XBQ_rTj9Vl
 
 ## Run Locally
