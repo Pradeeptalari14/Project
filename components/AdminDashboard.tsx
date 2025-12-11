@@ -322,7 +322,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
     const showStaging = isAdmin || isShiftLead || currentUser?.role === Role.STAGING_SUPERVISOR;
     const showLoading = isAdmin || isShiftLead || currentUser?.role === Role.LOADING_SUPERVISOR;
     const showApprovals = isAdmin || isShiftLead;
-    const showApprovals = isAdmin || isShiftLead;
+
 
     // --- VIEW 1: ANALYTICS DASHBOARD ---
     if (viewMode === 'analytics') {
