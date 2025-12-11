@@ -3,11 +3,13 @@ import React, { useState } from 'react';
 import { useApp } from './AppContext';
 import { Auth } from './components/Auth';
 import { Layout } from './components/Layout';
-import { AdminDashboard } from './components/AdminDashboard';
-import { StagingSheet } from './components/StagingSheet';
-import { LoadingSheet } from './components/LoadingSheet';
 import { Role, SheetStatus, SheetData } from './types';
-import { PlusCircle, Search, Edit3, Eye, Lock, Printer } from 'lucide-react';
+import { PlusCircle, Search, Edit3, Eye, Lock, Printer, Loader2 } from 'lucide-react';
+
+// Lazy Load Pages to prevent ReferenceError / Circular Initializations
+const AdminDashboard = React.lazy(() => import('./components/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
+const StagingSheet = React.lazy(() => import('./components/StagingSheet').then(module => ({ default: module.StagingSheet })));
+const LoadingSheet = React.lazy(() => import('./components/LoadingSheet').then(module => ({ default: module.LoadingSheet })));
 
 interface ErrorBoundaryState {
     hasError: boolean;
@@ -328,9 +330,17 @@ const App = () => {
 
     return (
         <ErrorBoundary>
-
             <Layout currentPage={currentPage} onNavigate={handleNavigate}>
-                {renderContent()}
+                <React.Suspense fallback={
+                    <div className="flex items-center justify-center p-24 text-slate-400">
+                        <div className="flex flex-col items-center gap-3">
+                            <Loader2 className="animate-spin text-blue-500" size={32} />
+                            <p className="text-sm font-medium">Loading component...</p>
+                        </div>
+                    </div>
+                }>
+                    {renderContent()}
+                </React.Suspense>
             </Layout>
         </ErrorBoundary>
     );
