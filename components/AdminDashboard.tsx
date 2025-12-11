@@ -19,8 +19,7 @@ import * as XLSX from 'xlsx';
 import { WIDGET_COMPONENTS } from './widgets/WidgetMap';
 import { getWidgetMeta } from './widgets/WidgetMetadata';
 import { AddWidgetModal } from './widgets/AddWidgetModal';
-import { SLAMonitorWidget } from './widgets/SLAMonitorWidget';
-import { UserWidgetConfig } from './widgets/types';
+
 // --- CONFIGURATION: VIEW FILTERS ---
 // Defines which statuses are visible in each workflow view.
 const VIEW_SCOPES: Record<string, SheetStatus[]> = {
@@ -548,22 +547,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                 {/* ROW 3 & 4: Widgets */}
                 {/* ROW 3 & 4: Widgets */}
                 {/* ROW 3 & 4: Widgets */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Hide SLA for Supervisors, but Show Incidents */}
+                <React.Suspense fallback={<div className="col-span-full p-4 text-center text-slate-400">Loading widgets...</div>}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Hide SLA for Supervisors, but Show Incidents */}
 
-                    <>
-                        {showApprovals && userWidgets.includes('sla-monitor') && WIDGET_COMPONENTS['sla-monitor'] && (
-                            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">SLA Compliance</h3>{React.createElement(WIDGET_COMPONENTS['sla-monitor'])}</div>
-                        )}
+                        <>
+                            {showApprovals && userWidgets.includes('sla-monitor') && WIDGET_COMPONENTS['sla-monitor'] && (
+                                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">SLA Compliance</h3>{React.createElement(WIDGET_COMPONENTS['sla-monitor'])}</div>
+                            )}
 
-                    </>
+                        </>
 
-                </div>
-                {
-                    userWidgets.includes('staff-performance') && WIDGET_COMPONENTS['staff-performance'] && (
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">Staff Performance</h3>{React.createElement(WIDGET_COMPONENTS['staff-performance'])}</div>
-                    )
-                }
+                    </div>
+                    {
+                        userWidgets.includes('staff-performance') && WIDGET_COMPONENTS['staff-performance'] && (
+                            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm"><h3 className="font-bold mb-4">Staff Performance</h3>{React.createElement(WIDGET_COMPONENTS['staff-performance'])}</div>
+                        )
+                    }
+                </React.Suspense>
 
                 <AddWidgetModal isOpen={isAddWidgetOpen} onClose={() => setAddWidgetOpen(false)} onAdd={handleAddWidget} activeWidgets={userWidgets} />
             </div >

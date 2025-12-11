@@ -1,7 +1,10 @@
-import { StaffPerformanceWidget } from './StaffPerformanceWidget';
-import { SLAMonitorWidget } from './SLAMonitorWidget';
+import React from 'react';
 
-export const WIDGET_COMPONENTS: Record<string, React.ComponentType<any>> = {
+// Lazy load widgets to prevent circular dependency / initialization issues
+const StaffPerformanceWidget = React.lazy(() => import('./StaffPerformanceWidget').then(module => ({ default: module.StaffPerformanceWidget })));
+const SLAMonitorWidget = React.lazy(() => import('./SLAMonitorWidget').then(module => ({ default: module.SLAMonitorWidget })));
+
+export const WIDGET_COMPONENTS: Record<string, React.LazyExoticComponent<any>> = {
     'staff-performance': StaffPerformanceWidget,
     'sla-monitor': SLAMonitorWidget,
 };
