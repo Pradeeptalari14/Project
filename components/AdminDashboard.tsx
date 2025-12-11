@@ -28,7 +28,7 @@ const VIEW_SCOPES: Record<string, SheetStatus[]> = {
 };
 
 interface AdminDashboardProps {
-    viewMode: 'analytics' | 'users' | 'database' | 'audit' | 'approvals' | 'staging-db' | 'loading-db' | 'incidents';
+    viewMode: 'analytics' | 'users' | 'database' | 'audit' | 'approvals' | 'staging-db' | 'loading-db';
     onViewSheet: (sheet: SheetData) => void;
     onNavigate?: (page: string, filter?: string) => void;
     initialSearch?: string;
@@ -45,7 +45,7 @@ interface ViewConfig {
 
 // Forced HMR Rebuild v3
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onViewSheet, onNavigate, initialSearch = '' }) => {
-    const { users, approveUser, deleteUser, sheets, deleteSheet, register, resetPassword, currentUser, isLoading, updateSheet, incidents, resetSystemData, updateIncident } = useApp();
+    const { users, approveUser, deleteUser, sheets, deleteSheet, register, resetPassword, currentUser, isLoading, updateSheet, resetSystemData } = useApp();
 
     const [searchTerm, setSearchTerm] = useState(initialSearch);
     const [filterRole, setFilterRole] = useState<Role | 'ALL'>('ALL');
@@ -64,9 +64,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
     const [isResetPasswordOpen, setResetPasswordOpen] = useState(false);
     const [resetData, setResetData] = useState<{ id: string, username: string, newPass: string } | null>(null);
 
-    // --- INCIDENT FILTERS STATE ---
-    const [incidentStatusFilter, setIncidentStatusFilter] = useState<'ALL' | 'OPEN' | 'IN_PROGRESS' | 'ON_HOLD' | 'RESOLVED'>('ALL');
-    const [incidentDeptFilter, setIncidentDeptFilter] = useState<string>('ALL');
+
 
     // --- WIDGET SYSTEM STATE ---
     // Persist preferences to LocalStorage keyed by username
@@ -74,12 +72,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
         if (!currentUser?.username) return ['staff-performance', 'sla-monitor', 'incident-list'];
         try {
             const saved = localStorage.getItem(`unicharm_widgets_restored_v2_${currentUser.username}`);
-            const loaded = saved ? JSON.parse(saved) : ['staff-performance', 'sla-monitor', 'incident-list'];
-            if (!loaded.includes('incident-list')) loaded.push('incident-list');
+            const loaded = saved ? JSON.parse(saved) : ['staff-performance', 'sla-monitor'];
             return loaded;
         } catch (e) {
             console.error("Failed to parse widget preferences", e);
-            return ['staff-performance', 'sla-monitor', 'incident-list'];
+            return ['staff-performance', 'sla-monitor'];
         }
     });
     const [isAddWidgetOpen, setAddWidgetOpen] = useState(false);
@@ -325,7 +322,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
     const showStaging = isAdmin || isShiftLead || currentUser?.role === Role.STAGING_SUPERVISOR;
     const showLoading = isAdmin || isShiftLead || currentUser?.role === Role.LOADING_SUPERVISOR;
     const showApprovals = isAdmin || isShiftLead;
-    const showIncidents = isAdmin || isShiftLead || currentUser?.role === Role.STAGING_SUPERVISOR || currentUser?.role === Role.LOADING_SUPERVISOR;
+    const showApprovals = isAdmin || isShiftLead;
 
     // --- VIEW 1: ANALYTICS DASHBOARD ---
     if (viewMode === 'analytics') {
@@ -640,261 +637,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
 
     // --- VIEW 4: DATABASE PANEL (and SHIFT LEAD VIEW) ---
     // --- VIEW 3: DATABASE & APPROVALS & DEDICATED WORKFLOWS ---
-    // --- VIEW 5: INCIDENT CONTROL CENTER (DISABLED) ---
-    if (viewMode === 'DISABLED_incidents') {
-        const openIncidents = incidents.filter(i => i.status === 'OPEN').length;
-        const criticalIncidents = incidents.filter(i => i.priority === 'CRITICAL' && i.status !== 'RESOLVED').length;
-        const resolvedIncidents = incidents.filter(i => i.status === 'RESOLVED').length;
-
-        // Date Range State
-        const [incidentStartDate, setIncidentStartDate] = useState('');
-        const [incidentEndDate, setIncidentEndDate] = useState('');
-
-        // Enhanced Resolve/Update Handler
-        const handleResolve = async (id: string, notes: string, status: 'RESOLVED' | 'IN_PROGRESS' | 'ON_HOLD' = 'RESOLVED') => {
-            if (!updateIncident) {
-                alert("Error: Update function not available.");
-                return;
-            }
-
-            const updates: any = {
-                status,
-                resolutionNotes: notes
-            };
-
-            if (status === 'RESOLVED') {
-                updates.resolvedAt = new Date().toISOString();
-                updates.resolvedBy = currentUser?.username || 'Admin';
-            }
-
-            await updateIncident(id, updates);
-        };
-
-        const handleResetSystem = async () => {
-            if (confirm("WARNING: This will DELETE ALL DATA (Sheets, Incidents, Logs). Are you sure?")) {
-                const doubleCheck = prompt("Type 'DELETE' to confirm system reset:");
-                if (doubleCheck === 'DELETE') {
-                    await resetSystemData();
-                    alert("System data has been reset.");
-                }
-            }
-        };
-
-        return (
-            <div className="space-y-6">
-                {/* KPI Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-white p-4 rounded-xl border border-rose-100 shadow-sm flex items-center justify-between">
-                        <div><p className="text-sm text-slate-500 font-bold uppercase">Critical Issues</p><h3 className="text-2xl font-bold text-rose-600">{criticalIncidents}</h3></div>
-                        <div className="p-3 bg-rose-50 rounded-lg text-rose-500"><AlertTriangle size={24} /></div>
-                    </div>
-                    <div className="bg-white p-4 rounded-xl border border-blue-100 shadow-sm flex items-center justify-between">
-                        <div><p className="text-sm text-slate-500 font-bold uppercase">Open Incidents</p><h3 className="text-2xl font-bold text-blue-600">{openIncidents}</h3></div>
-                        <div className="p-3 bg-blue-50 rounded-lg text-blue-500"><AlertCircle size={24} /></div>
-                    </div>
-                    <div className="bg-white p-4 rounded-xl border border-green-100 shadow-sm flex items-center justify-between">
-                        <div><p className="text-sm text-slate-500 font-bold uppercase">Resolved Total</p><h3 className="text-2xl font-bold text-green-600">{resolvedIncidents}</h3></div>
-                        <div className="p-3 bg-green-50 rounded-lg text-green-500"><CheckCircle size={24} /></div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="p-4 border-b border-slate-100 flex justify-between items-center">
-                        <h3 className="font-bold text-slate-800 flex items-center gap-2"><ShieldAlert className="text-slate-400" size={18} /> Incident Control Center</h3>
-                        <div className="flex gap-2 items-center">
-                            {/* Filters */}
-                            <select
-                                className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                                value={incidentStatusFilter}
-                                onChange={(e) => setIncidentStatusFilter(e.target.value as any)}
-                            >
-                                <option value="ALL">All Status</option>
-                                <option value="OPEN">Open</option>
-                                <option value="IN_PROGRESS">In Progress</option>
-                                <option value="ON_HOLD">On Hold</option>
-                                <option value="RESOLVED">Resolved</option>
-                            </select>
-
-                            <select
-                                className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                                value={incidentDeptFilter}
-                                onChange={(e) => setIncidentDeptFilter(e.target.value)}
-                            >
-                                <option value="ALL">All Depts</option>
-                                <option value="LOGISTICS">Logistics</option>
-                                <option value="QUALITY">Quality</option>
-                                <option value="MAINTENANCE">Maintenance</option>
-                                <option value="OPERATIONS">Operations</option>
-                                <option value="IT">IT</option>
-                                <option value="HR">HR</option>
-                                <option value="OTHER">Other</option>
-                            </select>
-
-                            <input
-                                type="date"
-                                value={incidentStartDate}
-                                onChange={(e) => setIncidentStartDate(e.target.value)}
-                                className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                                title="Start Date"
-                            />
-                            <span className="text-slate-400">-</span>
-                            <input
-                                type="date"
-                                value={incidentEndDate}
-                                onChange={(e) => setIncidentEndDate(e.target.value)}
-                                className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                                title="End Date"
-                            />
-
-                            {isAdmin && (
-                                <button
-                                    onClick={handleResetSystem}
-                                    className="px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors"
-                                >
-                                    <Trash2 size={14} /> Reset System Data
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                    <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-50 text-slate-500 font-semibold uppercase text-xs">
-                            <tr>
-                                <th className="p-4">Priority</th>
-                                <th className="p-4">Type</th>
-                                <th className="p-4">Description</th>
-                                <th className="p-4">Assigned To</th>
-                                <th className="p-4">Reported By</th>
-                                <th className="p-4">Sheet ID</th>
-                                <th className="p-4">Status</th>
-                                <th className="p-4 text-center">Actions</th>
-                            </tr>
-
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {incidents.filter(inc => {
-                                // 1. Status Filter
-                                const matchStatus = incidentStatusFilter === 'ALL' || inc.status === incidentStatusFilter;
-                                // 2. Dept Filter
-                                const matchDept = incidentDeptFilter === 'ALL' || inc.assignedDepartment === incidentDeptFilter;
-                                // 3. Date Filter (Safe Parsing)
-                                let incDate = '';
-                                try {
-                                    incDate = inc.createdAt ? new Date(inc.createdAt).toISOString().split('T')[0] : '';
-                                } catch (e) { incDate = ''; }
-
-                                const matchStart = !incidentStartDate || incDate >= incidentStartDate;
-                                const matchEnd = !incidentEndDate || incDate <= incidentEndDate;
-
-                                return matchStatus && matchDept && matchStart && matchEnd;
-                            }).length === 0 ? (
-                                <tr><td colSpan={8} className="p-8 text-center text-slate-400">No matching incidents found.</td></tr>
-                            ) : (
-                                incidents
-                                    .filter(inc => {
-                                        const matchStatus = incidentStatusFilter === 'ALL' || inc.status === incidentStatusFilter;
-                                        const matchDept = incidentDeptFilter === 'ALL' || inc.assignedDepartment === incidentDeptFilter;
-                                        // Safe Parsing
-                                        let incDate = '';
-                                        try {
-                                            incDate = inc.createdAt ? new Date(inc.createdAt).toISOString().split('T')[0] : '';
-                                        } catch (e) { incDate = ''; }
-
-                                        const matchStart = !incidentStartDate || incDate >= incidentStartDate;
-                                        const matchEnd = !incidentEndDate || incDate <= incidentEndDate;
-                                        return matchStatus && matchDept && matchStart && matchEnd;
-                                    })
-                                    .map(inc => (
-                                        <tr key={inc.id} className="hover:bg-slate-50">
-                                            <td className="p-4">
-                                                <span className={`px-2 py-1 rounded text-xs font-bold ${inc.priority === 'CRITICAL' ? 'bg-rose-100 text-rose-700' :
-                                                    inc.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                                                        inc.priority === 'MEDIUM' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'
-                                                    }`}>{inc.priority}</span>
-                                            </td>
-                                            <td className="p-4 font-bold text-slate-700">{inc.type}</td>
-                                            <td className="p-4 max-w-xs truncate" title={inc.description}>{inc.description}</td>
-                                            <td className="p-4 text-slate-600 font-bold">{inc.assignedDepartment || '-'}</td>
-
-                                            <td className="p-4 text-slate-600">
-                                                {inc.createdBy}
-                                                <div className="text-[10px] text-slate-400 mt-1">
-                                                    Created: {inc.createdAt && !isNaN(new Date(inc.createdAt).getTime()) ? new Date(inc.createdAt).toLocaleString() : '-'}
-                                                    {inc.occurredAt && !isNaN(new Date(inc.occurredAt).getTime()) && (
-                                                        <div className="text-rose-600 font-bold bg-rose-50 px-1 rounded w-fit mt-0.5">
-                                                            Time: {new Date(inc.occurredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="p-4 font-mono text-blue-600">{inc.sheetId}</td>
-                                            <td className="p-4">
-                                                <span className={`flex items-center gap-1 font-bold text-xs ${inc.status === 'OPEN' ? 'text-rose-600' :
-                                                    inc.status === 'RESOLVED' ? 'text-green-600' :
-                                                        inc.status === 'IN_PROGRESS' ? 'text-blue-600' :
-                                                            'text-amber-600'}`}>
-                                                    {inc.status === 'RESOLVED' && <CheckCircle size={14} />}
-                                                    {inc.status === 'OPEN' && <AlertCircle size={14} />}
-                                                    {inc.status === 'IN_PROGRESS' && <Clock size={14} />}
-                                                    {inc.status === 'ON_HOLD' && <AlertTriangle size={14} />}
-                                                    {inc.status.replace('_', ' ')}
-                                                </span>
-                                                {inc.resolutionNotes && (
-                                                    <div className="text-[10px] text-slate-400 italic mt-1 max-w-[100px] truncate" title={inc.resolutionNotes}>
-                                                        {inc.status === 'ON_HOLD' ? 'Reason: ' : 'Note: '}{inc.resolutionNotes}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td className="p-4 text-center">
-                                                {inc.status !== 'RESOLVED' && (
-                                                    <div className="flex items-center justify-center gap-1">
-                                                        {/* Start / Resume */}
-                                                        {inc.status !== 'IN_PROGRESS' && (
-                                                            <button
-                                                                onClick={() => handleResolve(inc.id, "Started Work", 'IN_PROGRESS')}
-                                                                title="Mark In Progress"
-                                                                className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                                                            >
-                                                                <Clock size={14} />
-                                                            </button>
-                                                        )}
-
-                                                        {/* Hold */}
-                                                        {inc.status !== 'ON_HOLD' && (
-                                                            <button
-                                                                onClick={() => {
-                                                                    const reason = prompt("Enter Hold Reason:");
-                                                                    if (reason) handleResolve(inc.id, reason, 'ON_HOLD');
-                                                                }}
-                                                                title="Put On Hold"
-                                                                className="p-1.5 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-lg transition-colors"
-                                                            >
-                                                                <AlertTriangle size={14} />
-                                                            </button>
-                                                        )}
-
-                                                        {/* Resolve */}
-                                                        <button
-                                                            onClick={() => {
-                                                                const note = prompt("Enter Resolution/Closing Comment:");
-                                                                if (note) handleResolve(inc.id, note, 'RESOLVED');
-                                                            }}
-                                                            title="Resolve"
-                                                            className="p-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
-                                                        >
-                                                            <CheckCircle size={14} />
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div >
-        );
-    }
 
     if (viewMode === 'database' || viewMode === 'approvals' || viewMode === 'staging-db' || viewMode === 'loading-db') {
 
@@ -930,94 +672,114 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
             );
         }
 
-        const filteredSheets = sheets.filter(s => {
-            const term = searchTerm.toLowerCase();
-            const matchesSearch =
-                (s.id.toLowerCase().includes(term)) ||
-                (s.supervisorName?.toLowerCase().includes(term)) ||
-                (s.loadingSvName?.toLowerCase().includes(term)) ||
-                (s.completedBy && s.completedBy.toLowerCase().includes(term)) ||
-                (s.driverName && s.driverName.toLowerCase().includes(term)) ||
-                (s.vehicleNo && s.vehicleNo.toLowerCase().includes(term)) ||
-                (s.destination && s.destination.toLowerCase().includes(term));
+        // 1. Optimize Filter Logic with useMemo
+        const filteredSheets = useMemo(() => {
+            return sheets.filter(s => {
+                const term = searchTerm.toLowerCase();
+                const matchesSearch =
+                    (s.id.toLowerCase().includes(term)) ||
+                    (s.supervisorName?.toLowerCase().includes(term)) ||
+                    (s.loadingSvName?.toLowerCase().includes(term)) ||
+                    (s.completedBy && s.completedBy.toLowerCase().includes(term)) ||
+                    (s.driverName && s.driverName.toLowerCase().includes(term)) ||
+                    (s.vehicleNo && s.vehicleNo.toLowerCase().includes(term)) ||
+                    (s.destination && s.destination.toLowerCase().includes(term));
 
-            // 1. Primary Filter: Status from URL (Overrules everything if set and not 'ALL')
-            if (statusFilter && statusFilter !== 'ALL') {
-                if (s.status !== statusFilter) return false;
-            } else if (viewMode === 'approvals') {
-                // SPECIAL RULE: Shift Leads "Easy View" - If no filter, show ALL Pending items (Staging OR Loading)
-                const isPending = s.status === SheetStatus.STAGING_VERIFICATION_PENDING || s.status === SheetStatus.LOADING_VERIFICATION_PENDING;
-                if (!isPending) return false;
-            }
+                // 1. Primary Filter: Status from URL (Overrules everything if set and not 'ALL')
+                if (statusFilter && statusFilter !== 'ALL') {
+                    if (s.status !== statusFilter) return false;
+                } else if (viewMode === 'approvals') {
+                    // SPECIAL RULE: Shift Leads "Easy View" - If no filter, show ALL Pending items (Staging OR Loading)
+                    const isPending = s.status === SheetStatus.STAGING_VERIFICATION_PENDING || s.status === SheetStatus.LOADING_VERIFICATION_PENDING;
+                    if (!isPending) return false;
+                }
 
-            // 2. Scope Filter: Workflow Constraints
-            // Does this view have a strict list of allowed statuses?
-            const allowedStatuses = VIEW_SCOPES[viewMode];
-            if (allowedStatuses) {
-                if (!allowedStatuses.includes(s.status)) return false;
-            }
+                // 2. Scope Filter: Workflow Constraints
+                // Does this view have a strict list of allowed statuses?
+                const allowedStatuses = VIEW_SCOPES[viewMode];
+                if (allowedStatuses) {
+                    if (!allowedStatuses.includes(s.status)) return false;
+                }
 
-            // 3. Date Range Filter
-            if (dateRange.start) {
-                const sheetDate = new Date(s.date).getTime();
-                const startDate = new Date(dateRange.start).getTime();
-                if (sheetDate < startDate) return false;
-            }
-            if (dateRange.end) {
-                const sheetDate = new Date(s.date).getTime();
-                const endDate = new Date(dateRange.end).getTime();
-                if (sheetDate > endDate) return false;
-            }
+                // 3. Date Range Filter
+                if (dateRange.start) {
+                    const sheetDate = new Date(s.date).getTime();
+                    const startDate = new Date(dateRange.start).getTime();
+                    if (sheetDate < startDate) return false;
+                }
+                if (dateRange.end) {
+                    const sheetDate = new Date(s.date).getTime();
+                    const endDate = new Date(dateRange.end).getTime();
+                    if (sheetDate > endDate) return false;
+                }
 
-            // 4. Supervisor Filter
-            if (supervisorFilter !== 'ALL') {
-                const svName = resolveUserName(s.supervisorName, s.createdBy)?.toLowerCase() || '';
-                const ldgName = resolveUserName(s.loadingSvName, s.completedBy)?.toLowerCase() || '';
-                if (!svName.includes(supervisorFilter.toLowerCase()) && !ldgName.includes(supervisorFilter.toLowerCase())) return false;
-            }
+                // 4. Supervisor Filter
+                if (supervisorFilter !== 'ALL') {
+                    const svName = resolveUserName(s.supervisorName, s.createdBy)?.toLowerCase() || '';
+                    const ldgName = resolveUserName(s.loadingSvName, s.completedBy)?.toLowerCase() || '';
+                    if (!svName.includes(supervisorFilter.toLowerCase()) && !ldgName.includes(supervisorFilter.toLowerCase())) return false;
+                }
 
-            // 5. Location Filter
-            if (locationFilter !== 'ALL') {
-                if (!s.destination || !s.destination.toLowerCase().includes(locationFilter.toLowerCase())) return false;
-            }
+                // 5. Location Filter
+                if (locationFilter !== 'ALL') {
+                    if (!s.destination || !s.destination.toLowerCase().includes(locationFilter.toLowerCase())) return false;
+                }
 
-            // 6. NEW: Duration Filter
-            if (durationFilter !== 'ALL') {
-                if (!s.createdAt || !s.completedAt) return false; // Must be completed to have duration
-                const diff = new Date(s.completedAt).getTime() - new Date(s.createdAt).getTime();
-                const mins = diff / 60000;
+                // 6. NEW: Duration Filter
+                if (durationFilter !== 'ALL') {
+                    if (!s.createdAt || !s.completedAt) return false; // Must be completed to have duration
+                    const diff = new Date(s.completedAt).getTime() - new Date(s.createdAt).getTime();
+                    const mins = diff / 60000;
 
-                if (durationFilter === 'UNDER_30' && mins >= 30) return false;
-                if (durationFilter === '30_60' && (mins < 30 || mins > 60)) return false;
-                if (durationFilter === 'OVER_60' && mins <= 60) return false;
-                if (durationFilter === 'OVER_120' && mins <= 120) return false;
-            }
+                    if (durationFilter === 'UNDER_30' && mins >= 30) return false;
+                    if (durationFilter === '30_60' && (mins < 30 || mins > 60)) return false;
+                    if (durationFilter === 'OVER_60' && mins <= 60) return false;
+                    if (durationFilter === 'OVER_120' && mins <= 120) return false;
+                }
 
-            return matchesSearch;
-        }).sort((a, b) => {
-            if (!sortConfig) return 0;
-            const { key, direction } = sortConfig;
-            let valA: any = a[key as keyof SheetData];
-            let valB: any = b[key as keyof SheetData];
+                return matchesSearch;
+            }).sort((a, b) => {
+                if (!sortConfig) return 0;
+                const { key, direction } = sortConfig;
+                let valA: any = a[key as keyof SheetData];
+                let valB: any = b[key as keyof SheetData];
 
-            if (key === 'supervisorName') valA = resolveUserName(a.supervisorName, a.createdBy) || '';
-            if (key === 'supervisorName') valB = resolveUserName(b.supervisorName, b.createdBy) || '';
-            if (key === 'loadingSvName') valA = resolveUserName(a.loadingSvName, a.completedBy) || '';
-            if (key === 'loadingSvName') valB = resolveUserName(b.loadingSvName, b.completedBy) || '';
+                if (key === 'supervisorName') valA = resolveUserName(a.supervisorName, a.createdBy) || '';
+                if (key === 'supervisorName') valB = resolveUserName(b.supervisorName, b.createdBy) || '';
+                if (key === 'loadingSvName') valA = resolveUserName(a.loadingSvName, a.completedBy) || '';
+                if (key === 'loadingSvName') valB = resolveUserName(b.loadingSvName, b.completedBy) || '';
 
-            if (key === 'date' || key.includes('Time') || key.includes('At')) {
-                const dA = new Date(valA).getTime();
-                const dB = new Date(valB).getTime();
-                return direction === 'asc' ? dA - dB : dB - dA;
-            }
+                if (key === 'date' || key.includes('Time') || key.includes('At')) {
+                    const dA = new Date(valA).getTime();
+                    const dB = new Date(valB).getTime();
+                    return direction === 'asc' ? dA - dB : dB - dA;
+                }
 
-            if (typeof valA === 'string' && typeof valB === 'string') {
-                return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-            }
-            if (valA < valB) return direction === 'asc' ? -1 : 1;
-            if (valA > valB) return direction === 'asc' ? 1 : -1;
-            return 0;
-        });
+                if (typeof valA === 'string' && typeof valB === 'string') {
+                    return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                }
+                if (valA < valB) return direction === 'asc' ? -1 : 1;
+                if (valA > valB) return direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }, [sheets, searchTerm, statusFilter, viewMode, dateRange, supervisorFilter, locationFilter, durationFilter, sortConfig]);
+
+        // 2. Dynamic Option Generation (Memoized)
+        // Ensures dropdowns include historical values from Sheets, not just current Users
+        const uniqueSupervisors = useMemo(() => {
+            const names = new Set<string>();
+            sheets.forEach(s => {
+                const sv = resolveUserName(s.supervisorName, s.createdBy);
+                if (sv) names.add(sv);
+                const ldg = resolveUserName(s.loadingSvName, s.completedBy);
+                if (ldg) names.add(ldg);
+            });
+            return Array.from(names).sort();
+        }, [sheets]);
+
+        const uniqueLocations = useMemo(() => {
+            return Array.from(new Set(sheets.map(s => s.destination).filter(Boolean))).sort();
+        }, [sheets]);
 
         return (
             <div className="space-y-6">
@@ -1048,6 +810,68 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                             </div>
                             <button onClick={handleExportExcel} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm text-sm font-bold"><Download size={16} /> Export View</button>
                         </div>
+                    </div>
+
+                    {/* NEW: Easy Filter Toolbar */}
+                    <div className="flex flex-wrap gap-2 mb-4 animate-fade-in">
+                        {/* Quick Dates */}
+                        <div className="flex items-center bg-slate-100 rounded-lg p-1 gap-1">
+                            <span className="text-[10px] uppercase font-bold text-slate-400 px-2">Quick Dates</span>
+                            <button
+                                onClick={() => {
+                                    const today = new Date().toISOString().split('T')[0];
+                                    setDateRange({ start: today, end: today });
+                                }}
+                                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${dateRange.start === new Date().toISOString().split('T')[0] && dateRange.end === new Date().toISOString().split('T')[0] ? 'bg-white shadow text-blue-600' : 'text-slate-500 hover:bg-slate-200'}`}
+                            >
+                                Today
+                            </button>
+                            <button
+                                onClick={() => {
+                                    const end = new Date().toISOString().split('T')[0];
+                                    const start = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                                    setDateRange({ start, end });
+                                }}
+                                className="px-3 py-1.5 rounded-md text-xs font-bold text-slate-500 hover:bg-slate-200 transition-all"
+                            >
+                                Last 7 Days
+                            </button>
+                        </div>
+
+                        {/* My Sheets Shortcut */}
+                        <button
+                            onClick={() => {
+                                if (currentUser?.fullName) {
+                                    setSupervisorFilter(currentUser.fullName);
+                                } else {
+                                    alert("Your user profile does not have a Full Name set.");
+                                }
+                            }}
+                            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold border transition-all ${supervisorFilter === currentUser?.fullName ? 'bg-purple-100 text-purple-700 border-purple-200 shadow-inner' : 'bg-white text-slate-600 border-slate-200 hover:border-purple-300'}`}
+                        >
+                            <User size={14} /> My Sheets
+                        </button>
+
+                        {/* Clear All */}
+                        {(statusFilter || searchTerm || supervisorFilter !== 'ALL' || locationFilter !== 'ALL' || durationFilter !== 'ALL' || dateRange.start || dateRange.end) && (
+                            <button
+                                onClick={() => {
+                                    const newUrl = new URL(window.location.href);
+                                    newUrl.searchParams.delete('status');
+                                    window.history.pushState({}, '', newUrl.toString());
+                                    setSearchTerm('');
+                                    setDateRange({ start: '', end: '' });
+                                    setSupervisorFilter('ALL');
+                                    setLocationFilter('ALL');
+                                    setDurationFilter('ALL');
+                                    setDbWorkflow('ALL'); // Reset workflow too if needed, or keep as is? Let's reset.
+                                    // Actually, let's keep workflow if user selected it, but reset filters.
+                                }}
+                                className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition-all ml-auto"
+                            >
+                                <X size={14} /> Clear All Filters
+                            </button>
+                        )}
                     </div>
 
                     {/* NEW: Date Range & Extended Filters Toolbar */}
@@ -1083,8 +907,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 onChange={e => setSupervisorFilter(e.target.value)}
                             >
                                 <option value="ALL">All Supervisors</option>
-                                {users.filter(u => u.role === Role.STAGING_SUPERVISOR || u.role === Role.LOADING_SUPERVISOR).map(u => (
-                                    <option key={u.id} value={u.fullName || u.username}>{u.fullName || u.username}</option>
+                                {uniqueSupervisors.map(name => (
+                                    <option key={name} value={name}>{name}</option>
                                 ))}
                             </select>
                         </div>
@@ -1099,8 +923,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ viewMode, onView
                                 onChange={e => setLocationFilter(e.target.value)}
                             >
                                 <option value="ALL">All Locations</option>
-                                {/* Unique Destinations */}
-                                {Array.from(new Set(sheets.map(s => s.destination).filter(Boolean))).sort().map(loc => (
+                                {uniqueLocations.map(loc => (
                                     <option key={loc} value={loc}>{loc}</option>
                                 ))}
                             </select>

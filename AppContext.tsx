@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, SheetData, Role, Notification, Incident } from './types';
+import { User, SheetData, Role, Notification } from './types';
 import { supabase } from './services/supabaseClient';
 
 interface AppContextType {
@@ -9,7 +9,6 @@ interface AppContextType {
     sheets: SheetData[];
     notifications: Notification[];
     auditLogs: any[];
-    incidents: Incident[];
     isLoading: boolean;
     login: (username: string, pass: string, role: Role) => Promise<boolean>;
     logout: () => Promise<void>;
@@ -25,10 +24,6 @@ interface AppContextType {
     releaseLock: (sheetId: string) => void;
     addNotification: (msg: string) => void;
     markAllRead: () => void;
-    addNotification: (msg: string) => void;
-    markAllRead: () => void;
-    fetchIncidents: () => Promise<void>;
-    updateIncident: (id: string, updates: Partial<Incident>) => Promise<void>;
     resetSystemData: () => Promise<void>;
 }
 
@@ -40,7 +35,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [sheets, setSheets] = useState<SheetData[]>([]);
     const [auditLogs, setAuditLogs] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [incidents, setIncidents] = useState<Incident[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     // --- DATA FUNCTIONS ---
@@ -62,37 +56,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setSheets(loadedSheets);
         }
     };
-
-    const fetchIncidents = async () => {
-        const { data, error } = await supabase
-            .from('incidents')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (data && !error) {
-            setIncidents(data as Incident[]);
-        }
-    };
-
-    const updateIncident = async (id: string, updates: Partial<Incident>) => {
-        // Optimistic Update
-        setIncidents(prev => prev.map(inc => inc.id === id ? { ...inc, ...updates } : inc));
-
-        const { error } = await supabase
-            .from('incidents')
-            .update(updates)
-            .eq('id', id);
-
-        if (error) {
-            console.error("Failed to update incident:", error);
-            alert("Failed to save incident update.");
-            fetchIncidents(); // Revert on error
-        } else {
-            addNotification(`Incident updated.`);
-        }
-    };
-
-
 
     const fetchUsers = async () => {
         const { data } = await supabase.from('users').select('*');
@@ -174,7 +137,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         fetchSheets();
         fetchUsers();
         fetchLogs();
-        fetchIncidents();
     }, []);
 
     const login = async (username: string, pass: string, role: Role) => {
@@ -349,13 +311,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const resetSystemData = async () => {
         // Safe delete for demo purposes - clear arrays and try DB delete
         setSheets([]);
-        setIncidents([]);
         setAuditLogs([]);
         setNotifications([]);
 
         try {
             await supabase.from('sheets').delete().neq('id', '0');
-            await supabase.from('incidents').delete().neq('id', '0');
             await supabase.from('logs').delete().neq('id', '0');
             addLog('SYSTEM_RESET', 'All system data has been cleared by Admin.');
         } catch (e) {
@@ -365,10 +325,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     return (
         <AppContext.Provider value={{
-            currentUser, users, sheets, notifications, auditLogs, incidents, isLoading,
+            currentUser, users, sheets, notifications, auditLogs, isLoading,
             login, logout, register, approveUser, deleteUser, resetPassword,
             addSheet, updateSheet, deleteSheet, addComment,
-            acquireLock, releaseLock, addNotification, markAllRead, fetchIncidents, resetSystemData, updateIncident
+            acquireLock, releaseLock, addNotification, markAllRead, resetSystemData
         }}>
             {children}
         </AppContext.Provider>

@@ -5,7 +5,6 @@ import {
 } from 'lucide-react';
 import { useApp } from '../AppContext';
 import { Role, SheetStatus, SheetData } from '../types';
-import { IncidentModal } from './IncidentModal';
 
 interface Props {
     existingSheet?: SheetData;
@@ -27,9 +26,6 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
 
     // Checklist State
     const [stagingChecks, setStagingChecks] = useState({ qty: false, condition: false, sign: false });
-
-    // Incident Modal State (ADDED)
-    const [isIncidentModalOpen, setIncidentModalOpen] = useState(false);
 
     // Print Preview State
     const [isPreview, setIsPreview] = useState(initialPreview);
@@ -346,9 +342,6 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        <button onClick={() => setIncidentModalOpen(true)} className="bg-rose-50 text-rose-600 border border-rose-200 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-rose-100 transition-colors">
-                            <AlertTriangle size={16} /> Report Incident
-                        </button>
                         <button onClick={togglePreview} className="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-slate-700 transition-colors">
                             <Printer size={16} /> Print Preview
                         </button>
@@ -594,20 +587,7 @@ export const StagingSheet: React.FC<Props> = ({ existingSheet, onCancel, onLock,
                     </div>
                 )
             }
-            {
-                isIncidentModalOpen && existingSheet && (
-                    <IncidentModal
-                        sheetId={existingSheet.id}
-                        currentUser={currentUser?.username || 'Unknown'}
-                        onClose={() => setIncidentModalOpen(false)}
-                        onSuccess={() => {
-                            // Optional: Refresh sheet data or show toast
-                            setIncidentModalOpen(false);
-                            alert('Incident reported successfully');
-                        }}
-                    />
-                )
-            }
+
         </div >
     );
 };

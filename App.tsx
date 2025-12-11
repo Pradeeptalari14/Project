@@ -64,9 +64,6 @@ const App = () => {
         if (view === 'loading-db') return 'loading-db';
         if (view === 'approvals') return 'approvals';
         if (view === 'database') return 'database';
-        if (view === 'incidents') return 'incidents';
-        if (view === 'incidents') return 'incidents';
-        if (view === 'incidents') return 'incidents';
         return 'dashboard';
     });
 
@@ -176,12 +173,9 @@ const App = () => {
             case 'loading-db':
                 return <AdminDashboard viewMode="loading-db" onViewSheet={(s) => handleViewSheet(s)} onNavigate={handleNavigate} />;
 
+
             case 'approvals':
                 return <AdminDashboard viewMode="approvals" onViewSheet={(s) => handleViewSheet(s)} onNavigate={handleNavigate} />;
-
-            case 'incidents':
-                return <AdminDashboard viewMode="incidents" onViewSheet={(s) => handleViewSheet(s)} onNavigate={handleNavigate} />;
-
 
 
             case 'staging-editor':

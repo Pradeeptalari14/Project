@@ -159,22 +159,6 @@ export const EMPTY_STAGING_ITEMS: StagingItem[] = Array.from({ length: 15 }, (_,
   ttlCases: 0
 }));
 
-export type IncidentType = 'DAMAGE' | 'SHORTAGE' | 'QUALITY' | 'SAFETY' | 'OTHER';
-export type IncidentPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-export type IncidentStatus = 'OPEN' | 'IN_PROGRESS' | 'ON_HOLD' | 'RESOLVED';
 
-export interface Incident {
-  id: string;
-  sheetId: string;
-  type: IncidentType;
-  description: string;
-  priority: IncidentPriority;
-  status: IncidentStatus;
-  createdBy: string;
-  createdAt: string;
-  resolvedAt?: string;
-  resolvedAt?: string;
-  resolutionNotes?: string;
-  assignedDepartment?: Department;
-  occurredAt?: string; // User-reported time of incident
-}
+export type IncidentType = 'DAMAGE' | 'SHORTAGE' | 'QUALITY' | 'SAFETY' | 'OTHER';
+// Removed Incident Types
