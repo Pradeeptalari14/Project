@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#2563EB" />
+  <title>Unicharm SCM Operations</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .font-script {
+      font-family: 'Brush Script MT', cursive;
+    }
+
+    /* Globally hide arrows on number inputs */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+      /* Firefox */
+    }
+
+    /* Print specific overrides */
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 5mm;
+      }
+
+      html,
+      body {
+        height: auto !important;
+        overflow: visible !important;
+        background: white !important;
+        color: black !important;
+        font-size: 10px;
+      }
+
+      #root {
+        display: block !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      /* Ensure tables don't break inside rows */
+      tr,
+      td,
+      th {
+        page-break-inside: avoid;
+      }
+
+      thead {
+        display: table-header-group;
+      }
+
+      tfoot {
+        display: table-footer-group;
+      }
+
+      /* Force table borders to collapse and show */
+      table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+      }
+
+      td,
+      th {
+        border: 1px solid #000 !important;
+      }
+
+      /* Solid black borders */
+
+      /* Remove shadows and borders that look bad in print */
+      * {
+        box-shadow: none !important;
+      }
+
+      /* Force inputs to look like text */
+      input,
+      select {
+        background: transparent !important;
+        border: none !important;
+        appearance: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        color: black !important;
+        font-weight: 600;
+      }
+
+      /* Specific utilities for print layout visibility */
+      .print-bg-slate-200 {
+        background-color: #e2e8f0 !important;
+        -webkit-print-color-adjust: exact;
+      }
+
+      .print-bg-slate-100 {
+        background-color: #f1f5f9 !important;
+        -webkit-print-color-adjust: exact;
+      }
+
+      /* Grid Support */
+      .print\:grid {
+        display: grid !important;
+      }
+
+      .print\:grid-cols-12 {
+        grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+      }
+
+      .print\:col-span-4 {
+        grid-column: span 4 / span 4 !important;
+      }
+
+      .print\:col-span-8 {
+        grid-column: span 8 / span 8 !important;
+      }
+
+      .print\:hidden {
+        display: none !important;
+      }
+
+      .print\:block {
+        display: block !important;
+      }
+
+      .print\:flex {
+        display: flex !important;
+      }
+
+      /* Page Break Utility */
+      .print-break-before {
+        page-break-before: always !important;
+        break-before: page !important;
+        display: block !important;
+      }
+    }
+
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+
+
+</head>
+
+<body class="bg-slate-50 text-slate-900 antialiased">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>
