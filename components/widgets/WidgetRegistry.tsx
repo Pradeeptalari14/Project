@@ -2,23 +2,10 @@ import React from 'react';
 import { WidgetDefinition } from './types';
 import { StaffPerformanceWidget } from './StaffPerformanceWidget';
 import { SLAMonitorWidget } from './SLAMonitorWidget';
-import {
-    BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
-} from 'recharts';
+
 
 // Simple placeholder components for other widgets
-const KPIScoreCard = ({ title, value, subtext, icon: Icon, color }: any) => (
-    <div className="h-full flex flex-col justify-between">
-        <div className="flex items-center gap-2 mb-2">
-            <div className={`p-2 rounded-lg \${color} bg-opacity-10 text-opacity-100`}>
-                {Icon && <Icon size={18} />}
-            </div>
-            <span className="text-slate-500 font-bold text-xs uppercase">{title}</span>
-        </div>
-        <div className="text-2xl font-bold text-slate-800">{value}</div>
-        <div className="text-xs text-slate-400">{subtext}</div>
-    </div>
-);
+
 
 // Registry
 export const widgetRegistry: WidgetDefinition[] = [
