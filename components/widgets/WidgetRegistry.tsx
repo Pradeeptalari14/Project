@@ -37,7 +37,7 @@ export const widgetRegistry: WidgetDefinition[] = [
         description: 'Monitor loading times against 40-minute SLA.',
         defaultSize: 'medium',
         component: SLAMonitorWidget
-];
+    }
     // We can add more wrappers here later for generic charts
 ];
 
